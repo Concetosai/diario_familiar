@@ -1,0 +1,11 @@
+{
+  "name": "Remix Diario Digital Interactivo: Mamá, déjame conocerte con 100 preguntas",
+  "description": "Libro diario digital e interactivo para recopilar 100 recuerdos de mamá con notas de voz, fotos antiguas, maquetación de libro físico y exportación PDF para impresión.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

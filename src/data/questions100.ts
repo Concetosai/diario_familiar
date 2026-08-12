@@ -1,0 +1,623 @@
+import { Question, ActiveProfile } from '../types';
+import { QUESTIONS_DAD_100 } from './questionsDad100';
+import { QUESTIONS_FAMILY_30 } from './questionsFamily30';
+
+export const QUESTIONS_MOM_100: Question[] = [
+  // --- ETAPA 1: INFANCIA Y ORÍGENES (1-20) ---
+  {
+    id: 1,
+    stage: 'infancia',
+    title: '¿Dónde naciste y cómo era la casa de tu infancia?',
+    hint: 'Describe las habitaciones, los olores de la cocina, los ruidos de la calle o la luz de las ventanas.',
+  },
+  {
+    id: 2,
+    stage: 'infancia',
+    title: '¿Qué historias te contaron tus padres sobre el día en que naciste?',
+    hint: '¿Hacía frío o calor? ¿Quién estuvo presente? ¿Qué reacción tuvo la familia?',
+  },
+  {
+    id: 3,
+    stage: 'infancia',
+    title: '¿Cómo eran tus padres y qué recuerdas con más cariño de ellos?',
+    hint: 'Piensa en sus gestos, sus voces, cómo te consolaban o las frases que siempre repetían.',
+  },
+  {
+    id: 4,
+    stage: 'infancia',
+    title: '¿Quiénes eran tus abuelos y qué recuerdos guardas a su lado?',
+    hint: 'Recuerdos de recetas especiales, regalos, vacaciones o historias que te contaban.',
+  },
+  {
+    id: 5,
+    stage: 'infancia',
+    title: '¿Cómo era la relación con tus hermanos o primos en la niñez?',
+    hint: '¿A qué jugaban juntos? ¿Tenían secretos compartidos o pequeñas travesuras?',
+  },
+  {
+    id: 6,
+    stage: 'infancia',
+    title: '¿Cuál era tu juego o juguete favorito cuando tenías 7 años?',
+    hint: 'Muñecas, bicicletas, juegos de mesa, carreras en la calle o escondite.',
+  },
+  {
+    id: 7,
+    stage: 'infancia',
+    title: '¿Cuál es la primera travesura que recuerdas haber hecho?',
+    hint: '¿Te descubrieron? ¿Cuál fue la reacción de tus papás y qué lección aprendiste?',
+  },
+  {
+    id: 8,
+    stage: 'infancia',
+    title: '¿Cómo eran las celebraciones de cumpleaños o Navidad en tu infancia?',
+    hint: 'La comida tradicional, la música, los adornos familiares o la ilusión de los regalos.',
+  },
+  {
+    id: 9,
+    stage: 'infancia',
+    title: '¿Cuál era la comida que más te gustaba preparar con tu mamá o abuela?',
+    hint: 'Describe los ingredientes, el sabor y la calidez de esa cocina.',
+  },
+  {
+    id: 10,
+    stage: 'infancia',
+    title: '¿Qué olor o canción te transporta de inmediato a tu niñez?',
+    hint: 'El olor a lluvia, a bizcocho horneado, tierra mojada o la radio matutina.',
+  },
+  {
+    id: 11,
+    stage: 'infancia',
+    title: '¿Quién fue tu mejor amigo de la infancia y qué aventuras vivían?',
+    hint: 'Platica sobre las tardes interminables jugando después de la escuela.',
+  },
+  {
+    id: 12,
+    stage: 'infancia',
+    title: '¿Cómo fue tu primer día en la escuela primaria?',
+    hint: '¿Sentiste nervios o emoción? ¿Cómo era tu uniforme y tu maestra?',
+  },
+  {
+    id: 13,
+    stage: 'infancia',
+    title: '¿Tuviste alguna mascota especial en tu infancia?',
+    hint: 'Cuéntame su nombre, su raza o aspecto y lo que significaba para ti.',
+  },
+  {
+    id: 14,
+    stage: 'infancia',
+    title: '¿A qué le tenías miedo de pequeña y cómo aprendiste a superarlo?',
+    hint: 'La oscuridad, las tormentas, un perro del vecino o estar sola.',
+  },
+  {
+    id: 15,
+    stage: 'infancia',
+    title: '¿Cuál era tu rincón o escondite favorito en casa o en el jardín?',
+    hint: 'Un árbol, debajo de las cobijas, un porche o la biblioteca de papá.',
+  },
+  {
+    id: 16,
+    stage: 'infancia',
+    title: '¿Qué historias o cuentos te leían antes de dormir?',
+    hint: 'Cuentos clásicos, leyendas de la familia o historias inventadas.',
+  },
+  {
+    id: 17,
+    stage: 'infancia',
+    title: '¿Cómo vestías en esa época y cuál era tu ropa preferida?',
+    hint: 'Vestidos de domingo, zapatos de charol, cintas en el cabello o pantalones cómodos.',
+  },
+  {
+    id: 18,
+    stage: 'infancia',
+    title: '¿Qué valores te inculcaron más fuertemente en tu hogar?',
+    hint: 'El respeto, la honestidad, el trabajo duro, la fe o la generosidad.',
+  },
+  {
+    id: 19,
+    stage: 'infancia',
+    title: '¿Cuál fue el viaje o paseo escolar más emocionante de tu niñez?',
+    hint: 'El mar por primera vez, el campo, el zoológico o una excursión a la montaña.',
+  },
+  {
+    id: 20,
+    stage: 'infancia',
+    title: 'Si pudieras volver un solo día a tu infancia, ¿qué momento elegirías?',
+    hint: 'Cierra los ojos y revive la sensación exacta de estar ahí de nuevo.',
+  },
+
+  // --- ETAPA 2: JUVENTUD, SUEÑOS Y AMORES (21-40) ---
+  {
+    id: 21,
+    stage: 'juventud',
+    title: '¿Cómo fue tu adolescencia y qué soñabas ser cuando fueras grande?',
+    hint: '¿Qué profesión, arte o destino te ilusionaba más a los 15 o 18 años?',
+  },
+  {
+    id: 22,
+    stage: 'juventud',
+    title: '¿Qué música escuchabas en tu juventud y cuáles eran tus artistas favoritos?',
+    hint: 'Artistas, vinilos, casetes o bailes en las fiestas juveniles.',
+  },
+  {
+    id: 23,
+    stage: 'juventud',
+    title: '¿Cómo fue la experiencia de tu fiesta de quince años o graduación?',
+    hint: 'Tu vestido, los valses, la emoción de tus padres y tus amigas bailando.',
+  },
+  {
+    id: 24,
+    stage: 'juventud',
+    title: '¿Quiénes eran tus amigas inseparables en la juventud y qué hacían juntas?',
+    hint: 'Confidencias, cartas escritas a mano, paseos en la tarde y risas infinitas.',
+  },
+  {
+    id: 25,
+    stage: 'juventud',
+    title: '¿Cuál fue tu primer empleo y qué compraste con tu primer sueldo?',
+    hint: 'Siente de nuevo el orgullo y la independencia de ganar tu propio dinero.',
+  },
+  {
+    id: 26,
+    stage: 'juventud',
+    title: '¿Cómo conociste a tu primer amor o a papá?',
+    hint: '¿Dónde fue la primera mirada? ¿Qué sentiste en el estómago esa primera cita?',
+  },
+  {
+    id: 27,
+    stage: 'juventud',
+    title: '¿Cómo eran las cartas de amor o los noviazgos en tu época?',
+    hint: 'Cartas perfumadas, llamadas por teléfono fijo, citas en el parque con chaperón o al salir de misa.',
+  },
+  {
+    id: 28,
+    stage: 'juventud',
+    title: '¿Cuál fue el desafío más difícil que enfrentaste durante tu juventud?',
+    hint: 'Un examen difícil, un cambio de ciudad, una ruptura o una pérdida de salud.',
+  },
+  {
+    id: 29,
+    stage: 'juventud',
+    title: '¿Qué moda o estilo usabas que hoy te hace sonreír cuando ves fotos?',
+    hint: 'Peinados con volumen, hombreras, pantalones acampanados, maquillaje retro.',
+  },
+  {
+    id: 30,
+    stage: 'juventud',
+    title: '¿Cuál fue el viaje más divertido o transformador que hiciste de joven?',
+    hint: 'Un viaje de mochilera, las vacaciones con amigas o una aventura inesperada.',
+  },
+  {
+    id: 31,
+    stage: 'juventud',
+    title: '¿Qué libro, película o canción cambió tu forma de ver el mundo?',
+    hint: 'Obras que tocaron tu sensibilidad y te hicieron reflexionar profundamente.',
+  },
+  {
+    id: 32,
+    stage: 'juventud',
+    title: '¿Qué decisión importante tomaste a los 20 años que cambió tu rumbo?',
+    hint: 'Elegir una carrera, mudarte de casa, aceptar un trabajo o seguir una corazonada.',
+  },
+  {
+    id: 33,
+    stage: 'juventud',
+    title: '¿Cuál era tu pasatiempo o talento secreto cuando eras joven?',
+    hint: 'Tocar el piano, escribir poesía, tejer, bordar, pintar o la fotografía.',
+  },
+  {
+    id: 34,
+    stage: 'juventud',
+    title: '¿Cómo sabías que estabas lista para dar el paso hacia el matrimonio o la vida en pareja?',
+    hint: 'La certeza en el corazón, la conversación familiar y las expectativas sobre el futuro.',
+  },
+  {
+    id: 35,
+    stage: 'juventud',
+    title: '¿Cómo fue el día de tu boda o el compromiso oficial?',
+    hint: 'Los preparativos, el ramo de flores, los nervios y los votos sagrados.',
+  },
+  {
+    id: 36,
+    stage: 'juventud',
+    title: '¿Cómo era tu primer hogar independiente o de recién casados?',
+    hint: 'La decoración sencilla, los pocos muebles, pero la inmensa ilusión de empezar.',
+  },
+  {
+    id: 37,
+    stage: 'juventud',
+    title: '¿Qué lugar del mundo siempre soñaste visitar y por qué?',
+    hint: 'París, Roma, las playas del Caribe, el campo o algún pueblo ancestral.',
+  },
+  {
+    id: 38,
+    stage: 'juventud',
+    title: '¿Cuál fue la locura más grande que hiciste por amor o amistad?',
+    hint: 'Esa historia que solo le cuentas a muy pocas personas y que guarda tanta magia.',
+  },
+  {
+    id: 39,
+    stage: 'juventud',
+    title: '¿Quién fue tu mentor o figura de inspiración en tus inicios profesionales?',
+    hint: 'Un profesor motivador, un jefe sabio o un familiar que creyó siempre en ti.',
+  },
+  {
+    id: 40,
+    stage: 'juventud',
+    title: '¿Qué le dirías a esa joven de 20 años si pudieras abrazarla hoy?',
+    hint: 'Palabras de aliento, de calma sobre el futuro y de amor propio.',
+  },
+
+  // --- ETAPA 3: MATERNIDAD Y FAMILIA (41-65) ---
+  {
+    id: 41,
+    stage: 'maternidad',
+    title: '¿Qué sentiste en el corazón la primera vez que supiste que estabas embarazada de mí?',
+    hint: '¿A quién se lo contaste primero? ¿Cómo reaccionaron en casa?',
+  },
+  {
+    id: 42,
+    stage: 'maternidad',
+    title: '¿Cómo elegiste mi nombre y qué otros nombres tenías en mente?',
+    hint: 'Significado del nombre, acuerdos familiares o tributos a seres queridos.',
+  },
+  {
+    id: 43,
+    stage: 'maternidad',
+    title: '¿Cómo fue el día en que nací y qué sentiste al tenerme por primera vez en tus brazos?',
+    hint: 'La hora del parto, la mirada a mis ojos, los primeros minutos juntas.',
+  },
+  {
+    id: 44,
+    stage: 'maternidad',
+    title: '¿Cómo fueron los primeros meses cuidándome y adaptándote a ser mamá?',
+    hint: 'Las noches en desvelo, las canciones de cuna y el aprendizaje diario.',
+  },
+  {
+    id: 45,
+    stage: 'maternidad',
+    title: '¿Cuál es la primera palabra o paso que recuerdas que di en mi infancia?',
+    hint: '¿Dónde estábamos y quién presenció ese hermoso avance?',
+  },
+  {
+    id: 46,
+    stage: 'maternidad',
+    title: '¿Qué rasgo de mi personalidad se notaba desde que era pequeñita?',
+    hint: 'Curiosa, risueña, determinada, tímida, parlanchina o protectora.',
+  },
+  {
+    id: 47,
+    stage: 'maternidad',
+    title: '¿Cuál fue la anécdota o ocurrencia divertida mía que más te hizo reír?',
+    hint: 'Frases graciosas que decía, travesuras con la comida o disfraces improvisados.',
+  },
+  {
+    id: 48,
+    stage: 'maternidad',
+    title: '¿Cómo lograbas equilibrar el trabajo, el hogar y el cuidado de los hijos?',
+    hint: 'Tus rutinas secretas, el esfuerzo diario y el amor incondicional que nos brindabas.',
+  },
+  {
+    id: 49,
+    stage: 'maternidad',
+    title: '¿Cuál era el platillo especial que siempre me preparabas cuando estaba enferma o triste?',
+    hint: 'Sopa casera, te citos con miel, apapachos y abrazos curativos.',
+  },
+  {
+    id: 50,
+    stage: 'maternidad',
+    title: '¿Cuál fue el momento más desafiante de ser mamá y cómo sacaste fortaleza?',
+    hint: 'Momentos difíciles de salud, financieros o de crianza que lograste superar.',
+  },
+  {
+    id: 51,
+    stage: 'maternidad',
+    title: '¿Qué tradiciones familiares creaste y deseas que las siguientes generaciones mantengan?',
+    hint: 'Cenas dominicales, viajes anuales, recetas navideñas o ritos de fin de año.',
+  },
+  {
+    id: 52,
+    stage: 'maternidad',
+    title: '¿Cómo te sentiste el primer día que fui a la escuela solo/a?',
+    hint: 'Las lágrimas en la puerta, el vacío en la casa y la alegría de recibirme al volver.',
+  },
+  {
+    id: 53,
+    stage: 'maternidad',
+    title: '¿Cuál ha sido el logro o momento de orgullo mío que hizo latir más fuerte tu corazón?',
+    hint: 'Un diploma, una presentación, una muestra de bondad o ver mis sueños cumplirse.',
+  },
+  {
+    id: 54,
+    stage: 'maternidad',
+    title: '¿Cómo viviste mi época de adolescencia y cómo mantuvimos el lazo unido?',
+    hint: 'Las conversaciones difíciles, la paciencia y el amor incondicional.',
+  },
+  {
+    id: 55,
+    stage: 'maternidad',
+    title: '¿Qué valores o enseñanzas sentías que eran indispensables transmitirme?',
+    hint: 'Empatía, coraje, resiliencia, fe, sinceridad y lealtad.',
+  },
+  {
+    id: 56,
+    stage: 'maternidad',
+    title: '¿Cuál es la frase o consejo maternal que más me has repetido en la vida?',
+    hint: 'Esa frase mítica que todos en la familia reconocen como tuya.',
+  },
+  {
+    id: 57,
+    stage: 'maternidad',
+    title: '¿Cómo eran nuestros domingos en familia cuando éramos niños?',
+    hint: 'Paseos al parque, desayunos largos, películas compartidas o visitas a los abuelos.',
+  },
+  {
+    id: 58,
+    stage: 'maternidad',
+    title: '¿Qué objeto o joya familiar guardas con gran valor sentimental para heredar?',
+    hint: 'Un anillo, un reloj, una foto antigua, un diario o una vajilla especial.',
+  },
+  {
+    id: 59,
+    stage: 'maternidad',
+    title: '¿Qué sentiste cuando dejé el hogar familiar para independizarme o estudiar fuera?',
+    hint: 'El síndrome del nido vacío y la satisfacción de haberme dado alas para volar.',
+  },
+  {
+    id: 60,
+    stage: 'maternidad',
+    title: '¿En qué te ves reflejada en mí cuando me miras a los ojos hoy?',
+    hint: 'Gestos, forma de sonreír, perseverancia o hábitos cotidianos.',
+  },
+  {
+    id: 61,
+    stage: 'maternidad',
+    title: '¿En qué nos parecemos más y en qué somos completamente opuestos/as?',
+    hint: 'Contraste de personalidades, gustos y coincidencias hermosas.',
+  },
+  {
+    id: 62,
+    stage: 'maternidad',
+    title: '¿Cuál es la vacación o viaje familiar que más recuerdas con ternura?',
+    hint: 'Momentos divertidos, imprevistos del viaje y fotos inolvidables.',
+  },
+  {
+    id: 63,
+    stage: 'maternidad',
+    title: '¿Cómo cambio tu visión de la vida después de convertirte en madre?',
+    hint: 'Prioridades redefinidas, capacidad de amar sin límites y sensibilidad.',
+  },
+  {
+    id: 64,
+    stage: 'maternidad',
+    title: '¿Qué cualidad admiras más de mí hoy en día como persona adulta?',
+    hint: 'Tu mirada sincera sobre mis virtudes y mi camino.',
+  },
+  {
+    id: 65,
+    stage: 'maternidad',
+    title: '¿Qué momento sencillo entre los dos/as guardas como un tesoro sagrado?',
+    hint: 'Tomar un café juntas, pláticas nocturnas, abrazos silenciosos.',
+  },
+
+  // --- ETAPA 4: SABIDURÍA Y REFLEXIONES (66-85) ---
+  {
+    id: 66,
+    stage: 'sabiduria',
+    title: '¿Cuál ha sido la lección de vida más dura pero más valiosa que has aprendido?',
+    hint: 'Aprendizajes que se adquieren a través del dolor y la superación personal.',
+  },
+  {
+    id: 67,
+    stage: 'sabiduria',
+    title: '¿Qué significa para ti la verdadera felicidad y dónde la encuentras diariamente?',
+    hint: 'En los pequeños detalles, en la paz mental, en la salud de los tuyos.',
+  },
+  {
+    id: 68,
+    stage: 'sabiduria',
+    title: '¿Qué significa el amor verdadero tras décadas de experiencia?',
+    hint: 'Lealtad, compañía, entendimiento mutuo, aceptación y cariño constante.',
+  },
+  {
+    id: 69,
+    stage: 'sabiduria',
+    title: '¿Cómo manejas los momentos de tristeza, incertidumbre o pérdida?',
+    hint: 'Tus refugios del alma: oración, naturaleza, conversación o soledad sanadora.',
+  },
+  {
+    id: 70,
+    stage: 'sabiduria',
+    title: '¿Qué prejuicios o ideas tenías de joven que cambiaron radicalmente con los años?',
+    hint: 'Cosas sobre las que te volviste más comprensiva, tolerante y sabia.',
+  },
+  {
+    id: 71,
+    stage: 'sabiduria',
+    title: '¿Cuál considera que es el secreto para mantener relaciones duraderas y sanas?',
+    hint: 'Paciencia, diálogo sincero, saber perdonar y espacio personal.',
+  },
+  {
+    id: 72,
+    stage: 'sabiduria',
+    title: '¿Qué importancia ha tenido la espiritualidad o la fe en tu andar por la vida?',
+    hint: 'Tus oraciones, rituales de paz y esperanza en momentos clave.',
+  },
+  {
+    id: 73,
+    stage: 'sabiduria',
+    title: '¿De qué logro personal en tu vida profesional o personal te sientes más orgullosa?',
+    hint: 'Independientemente de la maternidad, un logro que conquistaste por ti misma.',
+  },
+  {
+    id: 74,
+    stage: 'sabiduria',
+    title: '¿Qué es lo que más agradeces al despertar cada mañana?',
+    hint: 'Motivos diarios de gratitud: sol, salud, llamadas telefónicas, jardín.',
+  },
+  {
+    id: 75,
+    stage: 'sabiduria',
+    title: '¿Qué arrepentimiento o "hubiera querido" has logrado perdonarte y soltar?',
+    hint: 'La importancia del perdón hacia una misma y la paz con el pasado.',
+  },
+  {
+    id: 76,
+    stage: 'sabiduria',
+    title: '¿Cómo ha cambiado tu relación con tu propio cuerpo y belleza con los años?',
+    hint: 'Aceptar las arrugas como líneas de risas y huellas de sabiduría.',
+  },
+  {
+    id: 77,
+    stage: 'sabiduria',
+    title: '¿Cuál es el regalo o detalle no material más valioso que has recibido jamás?',
+    hint: 'Una carta escrita con lágrimas, un abrazo a tiempo, una presencia amorosa.',
+  },
+  {
+    id: 78,
+    stage: 'sabiduria',
+    title: '¿Qué opinas sobre el perdón y cuál es la clave para perdonar de corazón?',
+    hint: 'Liberar cargas pesadas y regalarse tranquilidad espiritual.',
+  },
+  {
+    id: 79,
+    stage: 'sabiduria',
+    title: '¿Qué te apasiona hacer en tu tiempo libre actualmente?',
+    hint: 'Jardinería, lectura, manualidades, caminar al aire libre, cocinar.',
+  },
+  {
+    id: 80,
+    stage: 'sabiduria',
+    title: '¿Cuál es la receta de cocina familiar secreta que solo tú sabes preparar mejor?',
+    hint: 'Escribe los pasos y el "toque secreto" que nadie debe olvidar.',
+  },
+  {
+    id: 81,
+    stage: 'sabiduria',
+    title: '¿Qué consejo le darías a alguien que está pasando por un desamor o momento oscuro?',
+    hint: 'Tus palabras consuelo basadas en tu experiencia acumulada.',
+  },
+  {
+    id: 82,
+    stage: 'sabiduria',
+    title: '¿Cómo te gustaría ser recordada en las reuniones familiares futuras?',
+    hint: 'La huella de alegría, amor, sazón y ternura que dejas en todos.',
+  },
+  {
+    id: 83,
+    stage: 'sabiduria',
+    title: '¿Qué cualidad humana consideras la más noble y hermosa?',
+    hint: 'La bondad silenciosa, la generosidad, la lealtad o la honestidad.',
+  },
+  {
+    id: 84,
+    stage: 'sabiduria',
+    title: '¿Qué significa para ti envejecer con dignidad y plenitud?',
+    hint: 'Disfrutar de los nietos, cosechar el amor cultivado y vivir en tranquilidad.',
+  },
+  {
+    id: 85,
+    stage: 'sabiduria',
+    title: '¿Cuál es la lección sobre el dinero y el trabajo que más valoras?',
+    hint: 'El valor de ahorrar, de no apegarse a lo material y valorar lo esencial.',
+  },
+
+  // --- ETAPA 5: LEGADO Y CARTAS AL FUTURO (86-100) ---
+  {
+    id: 86,
+    stage: 'legado',
+    title: 'Si pudieras concederme un solo deseo para el resto de mi vida, ¿cuál sería?',
+    hint: 'Tu bendición y anhelo más profundo para mi felicidad y paz.',
+  },
+  {
+    id: 87,
+    stage: 'legado',
+    title: '¿Qué mensaje quieres dejarle a tus nietos o futuras generaciones de la familia?',
+    hint: 'Palabras atemporales que leerán tus descendientes con admiración.',
+  },
+  {
+    id: 88,
+    stage: 'legado',
+    title: '¿Qué sueño o proyecto te queda aún por cumplir y cómo puedo ayudarte a lograrlo?',
+    hint: 'Ese viaje pendiente, escribir un relato o aprender algo nuevo.',
+  },
+  {
+    id: 89,
+    stage: 'legado',
+    title: '¿Qué canción quieres que siempre nos haga sentir cerca cuando la escuchemos?',
+    hint: 'Nuestra melodía especial que resonará para siempre en el corazón.',
+  },
+  {
+    id: 90,
+    stage: 'legado',
+    title: '¿Hay algún secreto o verdad bonita que nunca me habías contado antes?',
+    hint: 'Una confidencia dulce, un recuerdo guardado o una anécdota especial.',
+  },
+  {
+    id: 91,
+    stage: 'legado',
+    title: '¿Qué poema, oración o frase te reconforta y quieres que mantenga viva?',
+    hint: 'Tus versos preferidos o la oración que rezas cada noche.',
+  },
+  {
+    id: 92,
+    stage: 'legado',
+    title: '¿Qué costumbres de la familia esperas que jamás se pierdan?',
+    hint: 'Las felicitaciones a medianoche, los abrazos fuertes, la comida juntos.',
+  },
+  {
+    id: 93,
+    stage: 'legado',
+    title: '¿Cómo te gustaría que celebremos tus futuros cumpleaños?',
+    hint: 'Risas, flores, comida preferida y la familia unida alrededor de la mesa.',
+  },
+  {
+    id: 94,
+    stage: 'legado',
+    title: '¿Qué promesa te gustaría que nos hagamos como madre e hijo/a hoy?',
+    hint: 'Cuidarnos, escucharnos más, abrazarnos fuerte y expresarnos amor.',
+  },
+  {
+    id: 95,
+    stage: 'legado',
+    title: '¿Cuál ha sido la sorpresa más bella que te ha dado la vida?',
+    hint: 'Detalles inesperados del destino que iluminaron tu existencia.',
+  },
+  {
+    id: 96,
+    stage: 'legado',
+    title: 'Escribe un mensaje de amor libre para mí que pueda releer cuando más te extrañe.',
+    hint: 'Escribe directo desde tu alma, sin filtros, solo amor maternal.',
+  },
+  {
+    id: 97,
+    stage: 'legado',
+    title: '¿Qué te gustaría que haga cuando tenga días difíciles en mi vida adulta?',
+    hint: 'Recordar tu voz, respirar hondo, buscar la naturaleza y confiar en mí.',
+  },
+  {
+    id: 98,
+    stage: 'legado',
+    title: '¿Cómo te sientes al ver este libro lleno con tus recuerdos y tu voz?',
+    hint: 'Tu sentir al haber regalado el tesoro inestimable de tu historia.',
+  },
+  {
+    id: 99,
+    stage: 'legado',
+    title: '¿Qué palabras quieres escuchar de mí hoy y siempre?',
+    hint: 'Te amo, gracias, eres la mejor mamá del mundo y estoy orgulloso/a de ti.',
+  },
+  {
+    id: 100,
+    stage: 'legado',
+    title: 'Tu firma final, fecha y dedicatoria para cerrar este diario de amor eterno.',
+    hint: 'Coloca tu firma con amor, la fecha de hoy y un abrazo para la eternidad.',
+  },
+];
+
+export const QUESTIONS_100 = QUESTIONS_MOM_100;
+
+export function getQuestionsForProfile(profile: ActiveProfile = 'mama'): Question[] {
+  if (profile === 'familia') return QUESTIONS_FAMILY_30;
+  if (profile === 'papa') return QUESTIONS_DAD_100;
+  return QUESTIONS_MOM_100;
+}
