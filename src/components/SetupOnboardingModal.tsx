@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Sparkles, CheckCircle, FolderCheck, BookOpen, User, Heart, ArrowRight, Play, Pause } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Sparkles, CheckCircle, FolderCheck, BookOpen, User, Heart, ArrowRight, Play, Pause, ClipboardList } from 'lucide-react';
 import { BookData } from '../types';
 import { getBestFemaleSpanishVoice, speakWithFreeFemaleVoice } from '../utils/tts';
 
@@ -21,8 +21,13 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
   userEmail = '',
 }) => {
   // Read session from local storage if available
-  const savedSession = typeof window !== 'undefined' ? localStorage.getItem('user_session_demo') : null;
-  const parsedSession = savedSession ? JSON.parse(savedSession) : null;
+  let parsedSession = null;
+  try {
+    const savedSession = typeof window !== 'undefined' ? localStorage.getItem('user_session_demo') : null;
+    parsedSession = savedSession ? JSON.parse(savedSession) : null;
+  } catch {
+    parsedSession = null;
+  }
   const activeUserName = userName || parsedSession?.name || '';
   const activeUserEmail = userEmail || parsedSession?.email || '';
 
@@ -45,37 +50,62 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
 
   // Text To Speech (TTS) Controls
   const [isPlayingTts, setIsPlayingTts] = useState(false);
-  const [availableVoice, setAvailableVoice] = useState<string>('Cargando voz gratuita...');
+  const autoPlayRef = useRef<number | null>(null);
 
   const greetingName = authorName && authorName !== 'Mamá Lety' ? authorName : activeUserName;
   const welcomeScript = greetingName
     ? `¡Hola ${greetingName}! Te damos la bienvenida más cálida a tu libro digital de Legado Familiar. Estoy aquí para acompañarte paso a paso en esta hermosa experiencia. En este espacio podrás responder cien preguntas guiadas, restaurar fotografías antiguas con inteligencia artificial, grabar tu propia voz para que tus hijos y nietos te escuchen siempre, y guardar tus memorias de manera privada e independiente en tus subcarpetas personales de Google Drive. Vamos a personalizar tu libro ahora mismo.`
     : `¡Hola! Te damos la bienvenida más cálida a tu libro digital de Legado Familiar. Estoy aquí para acompañarte paso a paso en esta hermosa experiencia. En este espacio podrás responder cien preguntas guiadas, restaurar fotografías antiguas con inteligencia artificial, grabar tu propia voz para que tus hijos y nietos te escuchen siempre, y guardar tus memorias de manera privada e independiente en tus subcarpetas personales de Google Drive. Vamos a personalizar tu libro ahora mismo.`;
 
-  // Initialize SpeechSynthesis and find free female Spanish voice
+  // Spoken guidance for each step of the onboarding protocol
+  const stepScripts: Record<number, string> = {
+    1: welcomeScript,
+    2: `Perfecto. Ahora vamos a personalizar tu libro de recuerdos. Este paso es muy importante porque tus hijos, nietos y toda tu familia verán estos datos en la portada y en cada página de tu historia. Llena los tres campos con calma. Primero, escribe tu nombre completo en el campo llamado Nombre del Autor o Protagonista, así tus respuestas quedarán firmadas con tu propio nombre. Segundo, escribe el título de tu libro, puedes usar el que ya aparece o inventar el tuyo. Tercero, escribe el nombre de tu familia o la dedicatoria que quieras que aparezca. No te preocupes por equivocarte: podrás cambiarlo cuando quieras desde la aplicación. Cuando termines, presiona el botón Siguiente Paso para continuar. Enseguida podrás responder tu primera pregunta.`,
+    3: `Ya casi terminas. Mira el resumen de tu configuración para confirmar que todo esté correcto. Estos datos aparecerán en la portada de tu libro, en tus exportaciones en PDF y en cada recuerdo que compartas. Si todo se ve bien, presiona el botón Guardar y Comenzar Mi Legado. Después de esto, se abrirá tu libro y podrás comenzar a responder la primera pregunta: elige la etapa de vida, escribe tu respuesta o graba tu voz, y presiona el botón para guardar. Tus hijos y nietos podrán leer tus memorias para siempre. ¡Empecemos!`,
+  };
+
+  // Speak a script and track playing state
+  const speakScript = (text: string) => {
+    if (!('speechSynthesis' in window) || !text) return;
+
+    window.speechSynthesis.cancel();
+    speakWithFreeFemaleVoice(text, { lang: 'es-MX', rate: 1.0, pitch: 1.1 }).then((utterance) => {
+      if (!utterance) return;
+      utterance.onend = () => setIsPlayingTts(false);
+      utterance.onerror = () => setIsPlayingTts(false);
+    });
+    setIsPlayingTts(true);
+  };
+
+  // Auto-play the spoken guide each time the modal opens or the step changes
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (autoPlayRef.current) {
+      window.clearTimeout(autoPlayRef.current);
+    }
+
+    autoPlayRef.current = window.setTimeout(() => {
+      speakScript(stepScripts[currentStep] || welcomeScript);
+    }, 350);
+
+    return () => {
+      if (autoPlayRef.current) {
+        window.clearTimeout(autoPlayRef.current);
+        autoPlayRef.current = null;
+      }
+    };
+  }, [isOpen, currentStep]);
+
+  // Initialize SpeechSynthesis and preload the best free female Spanish voice
   useEffect(() => {
     if (!('speechSynthesis' in window)) {
-      setAvailableVoice('Voz TTS del navegador no soportada');
       return;
     }
 
-    let mounted = true;
-
-    const loadVoices = async () => {
-      const voice = await getBestFemaleSpanishVoice();
-      if (!mounted) return;
-      if (voice) {
-        setAvailableVoice(voice.name);
-      } else {
-        setAvailableVoice('Voz gratuita del navegador');
-      }
-    };
-
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    getBestFemaleSpanishVoice();
 
     return () => {
-      mounted = false;
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
@@ -92,18 +122,7 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
       return;
     }
 
-    window.speechSynthesis.cancel(); // Stop any active speech
-
-    speakWithFreeFemaleVoice(welcomeScript, { lang: 'es-MX', rate: 1.0, pitch: 1.1 }).then((utterance) => {
-      if (!utterance) return;
-      utterance.onend = () => {
-        setIsPlayingTts(false);
-      };
-      utterance.onerror = () => {
-        setIsPlayingTts(false);
-      };
-    });
-    setIsPlayingTts(true);
+    speakScript(stepScripts[currentStep] || welcomeScript);
   };
 
   const handleFinishSetup = () => {
@@ -163,12 +182,6 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
                 <div className="flex items-center justify-between border-b border-amber-200/80 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">🎙️</span>
-                    <div>
-                      <h3 className="font-bold font-serif text-amber-950 text-base">
-                        Asistente de Voz Natural (Gratuita)
-                      </h3>
-                      <p className="text-xs text-amber-900/70">{availableVoice}</p>
-                    </div>
                   </div>
                   <button
                     onClick={togglePlayTts}
@@ -177,9 +190,10 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
                         ? 'bg-amber-800 text-amber-50 animate-pulse'
                         : 'bg-amber-700 hover:bg-amber-800 text-white'
                     }`}
+                    title={isPlayingTts ? 'Pausar' : 'Escuchar'}
                   >
                     {isPlayingTts ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
-                    {isPlayingTts ? 'Pausar Voz' : 'Escuchar Bienvenida'}
+                    {isPlayingTts ? 'Pausar' : 'Escuchar'}
                   </button>
                 </div>
 
@@ -214,6 +228,26 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
               <p className="text-sm text-stone-700">
                 Personaliza la portada y la identidad de tu libro. Estos datos aparecerán en tu libro digital y en tus exportaciones PDF.
               </p>
+
+              <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-bold text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                  <ClipboardList className="w-4 h-4 text-amber-800" /> Cómo personalizar tu libro — sigue estos pasos
+                </p>
+                <ol className="list-decimal list-inside text-xs text-stone-700 space-y-1.5 leading-relaxed">
+                  <li>
+                    <strong>Nombre del Autor / Protagonista:</strong> escribe tu nombre completo aquí. Así quedarán firmadas tus respuestas e historias. <span className="text-stone-500">(Ej. María González)</span>
+                  </li>
+                  <li>
+                    <strong>Título Principal del Libro:</strong> puedes usar el título que ya aparece o inventar el tuyo. <span className="text-stone-500">(Ej. Mi Legado de Vida y Memorias)</span>
+                  </li>
+                  <li>
+                    <strong>Nombre de la Familia o Dedicatoria:</strong> escribe el nombre de tu familia o una dedicatoria especial. <span className="text-stone-500">(Ej. Familia González Morales)</span>
+                  </li>
+                  <li>
+                    Cuando termines, presiona <strong>“Siguiente Paso”</strong> para revisar tu resumen y comenzar a responder tu primera pregunta.
+                  </li>
+                </ol>
+              </div>
 
               <div className="space-y-3 bg-white p-4 rounded-xl border border-amber-950/10 shadow-sm">
                 <div>

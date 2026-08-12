@@ -75,8 +75,16 @@ export default function App() {
       try {
         const res = await fetch('/api/book/load');
         const data = await res.json();
-        if (data.success && data.bookData) {
-          setBookData(data.bookData);
+        if (data.success && data.bookData && data.bookData.metadata) {
+          // Merge loaded data over initial defaults to guarantee a valid structure
+          setBookData({
+            ...INITIAL_BOOK_DATA,
+            ...data.bookData,
+            metadata: {
+              ...INITIAL_BOOK_DATA.metadata,
+              ...(data.bookData.metadata || {}),
+            },
+          });
         }
       } catch (err) {
         console.error('Error cargando cápsula de memoria:', err);
@@ -380,8 +388,13 @@ export default function App() {
 
       {/* Protocolo de Bienvenida e Inducción Modal */}
       {(() => {
-        const savedSession = typeof window !== 'undefined' ? localStorage.getItem('user_session_demo') : null;
-        const userSession = savedSession ? JSON.parse(savedSession) : null;
+        let userSession = null;
+        try {
+          const savedSession = typeof window !== 'undefined' ? localStorage.getItem('user_session_demo') : null;
+          userSession = savedSession ? JSON.parse(savedSession) : null;
+        } catch {
+          userSession = null;
+        }
         return (
           <>
             <SetupOnboardingModal

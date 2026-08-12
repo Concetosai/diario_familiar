@@ -865,16 +865,30 @@ Genera el objeto JSON con aiReply, suggestedDraft e inspirationTips.`;
 
   app.get('/api/book/load', (_req, res) => {
     try {
+      const isValidVault = (vault: any) =>
+        vault && typeof vault === 'object' && vault.metadata && typeof vault.metadata === 'object';
+
       if (fs.existsSync(DATA_FILE)) {
         const content = fs.readFileSync(DATA_FILE, 'utf-8');
-        res.json({ success: true, bookData: JSON.parse(content), source: 'disk' });
-      } else if (memoryVault) {
+        const parsed = JSON.parse(content);
+        if (isValidVault(parsed)) {
+          res.json({ success: true, bookData: parsed, source: 'disk' });
+        } else {
+          console.warn('Vault en disco con formato inválido, ignorándolo:', DATA_FILE);
+          if (memoryVault && isValidVault(memoryVault)) {
+            res.json({ success: true, bookData: memoryVault, source: 'memory' });
+          } else {
+            res.json({ success: true, bookData: null, source: 'none' });
+          }
+        }
+      } else if (memoryVault && isValidVault(memoryVault)) {
         res.json({ success: true, bookData: memoryVault, source: 'memory' });
       } else {
         res.json({ success: true, bookData: null, source: 'none' });
       }
     } catch (err: any) {
-      res.status(500).json({ error: 'Error al cargar desde el servidor', details: err.message });
+      console.error('Error al cargar desde el servidor:', err);
+      res.json({ success: true, bookData: null, source: 'none' });
     }
   });
 
