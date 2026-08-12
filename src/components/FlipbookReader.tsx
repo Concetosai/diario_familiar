@@ -445,7 +445,7 @@ export const FlipbookReader: React.FC<FlipbookReaderProps> = ({
                         value={editRecipientName}
                         onChange={(e) => setEditRecipientName(e.target.value)}
                         className="w-full p-2 rounded-lg bg-white border border-amber-300 text-xs font-serif font-bold text-amber-950 shadow-inner"
-                        placeholder="Ej. Mamá Lety"
+                        placeholder="Ej. Nombre de tu mamá"
                       />
                     </div>
 
@@ -474,16 +474,16 @@ export const FlipbookReader: React.FC<FlipbookReaderProps> = ({
                         value={editGiverName}
                         onChange={(e) => setEditGiverName(e.target.value)}
                         className="w-full p-2.5 rounded-lg bg-white border border-amber-300 text-xs font-serif font-bold text-amber-950 shadow-inner"
-                        placeholder="Ej. Con todo el amor de tus hijos Sofía, Carlos y Mateo"
+                        placeholder="Ej. Con todo el amor de tus hijos"
                       />
                       
                       {/* Suggestion Chips */}
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         <span className="text-[10px] text-stone-500 self-center font-serif">Sugerencias:</span>
                         {[
-                          'Con todo el amor de tus hijos (Sofía, Carlos y Mateo)',
+                          'Con todo el amor de tus hijos',
                           'De tus hijos y nietos con infinito amor',
-                          'Con todo el amor de tu hija Sofía',
+                          'Con todo el amor de tu hija',
                           'Con inmenso cariño de toda tu familia',
                         ].map((chip) => (
                           <button
@@ -598,7 +598,7 @@ export const FlipbookReader: React.FC<FlipbookReaderProps> = ({
                     <div className="bg-white/95 p-6 sm:p-7 rounded-2xl border-l-4 border-l-rose-600 border border-amber-900/20 shadow-md space-y-4 relative">
                       <div className="flex items-center justify-between border-b border-rose-100 pb-2">
                         <span className="text-xs font-bold uppercase tracking-wider text-rose-900 font-serif flex items-center gap-1.5">
-                          🌸 Versión de Mamá (Lety)
+                          🌸 Versión de Mamá
                         </span>
                         <span className="text-[10px] font-mono bg-rose-50 text-rose-800 px-2 py-0.5 rounded border border-rose-200">
                           Respuesta de Mamá
@@ -636,7 +636,7 @@ export const FlipbookReader: React.FC<FlipbookReaderProps> = ({
                               </button>
                               <div>
                                 <p className="font-serif font-bold text-xs text-white">
-                                  Voz original de Mamá (Lety)
+                                  Voz original de Mamá
                                 </p>
                                 <p className="text-[10px] text-amber-200 font-mono">
                                   Duración: {Math.floor(note.durationSeconds / 60)}m {note.durationSeconds % 60}s
@@ -657,7 +657,7 @@ export const FlipbookReader: React.FC<FlipbookReaderProps> = ({
                     <div className="bg-white/95 p-6 sm:p-7 rounded-2xl border-l-4 border-l-sky-600 border border-amber-900/20 shadow-md space-y-4 relative">
                       <div className="flex items-center justify-between border-b border-sky-100 pb-2">
                         <span className="text-xs font-bold uppercase tracking-wider text-sky-900 font-serif flex items-center gap-1.5">
-                          👔 Versión de Papá (Carlos)
+                          👔 Versión de Papá
                         </span>
                         <span className="text-[10px] font-mono bg-sky-50 text-sky-800 px-2 py-0.5 rounded border border-sky-200">
                           Respuesta de Papá
@@ -695,7 +695,7 @@ export const FlipbookReader: React.FC<FlipbookReaderProps> = ({
                               </button>
                               <div>
                                 <p className="font-serif font-bold text-xs text-white">
-                                  Voz original de Papá (Carlos)
+                                  Voz original de Papá
                                 </p>
                                 <p className="text-[10px] text-amber-200 font-mono">
                                   Duración: {Math.floor(note.durationSeconds / 60)}m {note.durationSeconds % 60}s

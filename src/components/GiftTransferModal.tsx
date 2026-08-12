@@ -71,9 +71,9 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
   const [selectedEdition, setSelectedEdition] = useState<BookEdition>(
     bookData.metadata.edition || 'doble_pareja'
   );
-  const [giverName, setGiverName] = useState(bookData.metadata.giverName || userName || 'Tu hijo Carlos');
-  const [recipientName, setRecipientName] = useState(bookData.metadata.recipientName || 'Mamá Lety');
-  const [dadName, setDadName] = useState(bookData.metadata.dadName || 'Papá Carlos');
+  const [giverName, setGiverName] = useState(bookData.metadata.giverName || userName || 'Tu hijo');
+  const [recipientName, setRecipientName] = useState(bookData.metadata.recipientName || 'Mamá');
+  const [dadName, setDadName] = useState(bookData.metadata.dadName || 'Papá');
   const [dedicationText, setDedicationText] = useState(
     bookData.metadata.dedication ||
       'Queridos padres, este libro es un regalo de toda la familia para guardar sus historias, sus hermosas memorias y sus voces para siempre. Queremos escucharlos y recordar cada momento de sus vidas. Los amamos profundamente.'
@@ -467,7 +467,7 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
                           setGiverName(e.target.value);
                           setIsSaved(false);
                         }}
-                        placeholder="Ej. Con todo el amor de tu hijo Carlos"
+                        placeholder="Ej. Con todo el amor de tu hijo"
                         className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-amber-700"
                       />
                     </div>
@@ -485,7 +485,7 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
                             setRecipientName(e.target.value);
                             setIsSaved(false);
                           }}
-                          placeholder="Ej. Mamá Lety"
+                          placeholder="Ej. Nombre de tu mamá"
                           className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-amber-700 font-bold text-stone-900"
                         />
                       </div>
@@ -504,7 +504,7 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
                             setRecipientName(e.target.value);
                             setIsSaved(false);
                           }}
-                          placeholder="Ej. Papá Carlos"
+                          placeholder="Ej. Nombre de tu papá"
                           className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-amber-700 font-bold text-stone-900"
                         />
                       </div>
@@ -523,7 +523,7 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
                               setRecipientName(e.target.value);
                               setIsSaved(false);
                             }}
-                            placeholder="Ej. Mamá Lety"
+                          placeholder="Ej. Nombre de tu mamá"
                             className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-amber-700 font-bold text-stone-900"
                           />
                         </div>
@@ -538,7 +538,7 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
                               setDadName(e.target.value);
                               setIsSaved(false);
                             }}
-                            placeholder="Ej. Papá Carlos"
+                          placeholder="Ej. Nombre de tu papá"
                             className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-amber-700 font-bold text-stone-900"
                           />
                         </div>

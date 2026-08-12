@@ -484,7 +484,7 @@ Menciona en un objeto JSON estricto:
     try {
       const {
         questionTitle = 'Un recuerdo de mi vida',
-        recipientName = 'Mamá Lety',
+        recipientName = 'Mamá',
         giverName = 'Familia',
         userMessage = '',
         chatHistory = [],
@@ -903,7 +903,7 @@ Genera el objeto JSON con aiReply, suggestedDraft e inspirationTips.`;
         [
           `RESP-${questionId}-${Date.now().toString().slice(-4)}`,
           masterEmail || 'master@legadofamiliar.app',
-          familyCode || 'FAM-LETY-2026',
+          familyCode || 'FAM-2026',
           questionId,
           stageName || 'General',
           questionTitle || '',
@@ -956,7 +956,7 @@ Genera el objeto JSON con aiReply, suggestedDraft e inspirationTips.`;
         [
           `COM-${Date.now().toString().slice(-4)}`,
           masterEmail || 'master@legadofamiliar.app',
-          familyCode || 'FAM-LETY-2026',
+          familyCode || 'FAM-2026',
           questionId || 0,
           authorEmail || 'familiar@legadofamiliar.app',
           authorName || 'Familiar',

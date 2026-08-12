@@ -99,7 +99,7 @@ export const CapsuleModal: React.FC<CapsuleModalProps> = ({
                 value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
                 className="w-full p-2.5 rounded-xl bg-white border border-amber-300 text-xs font-bold text-amber-950"
-                placeholder="Ej. Mamá Lety"
+                placeholder="Ej. Nombre de la persona"
               />
             </div>
 
@@ -110,7 +110,7 @@ export const CapsuleModal: React.FC<CapsuleModalProps> = ({
                 value={giverName}
                 onChange={(e) => setGiverName(e.target.value)}
                 className="w-full p-2.5 rounded-xl bg-white border border-amber-300 text-xs font-bold text-stone-900"
-                placeholder="Ej. Con todo el amor de tus hijos Sofía, Carlos y Mateo"
+                placeholder="Ej. Con todo el amor de tus hijos"
               />
             </div>
           </div>
@@ -119,9 +119,9 @@ export const CapsuleModal: React.FC<CapsuleModalProps> = ({
           <div className="flex flex-wrap gap-1.5 pt-1">
             <span className="text-[10px] text-stone-500 font-serif self-center">Opciones rápidas de firma:</span>
             {[
-              'Con todo el amor de tus hijos (Sofía, Carlos y Mateo)',
+              'Con todo el amor de tus hijos',
               'De tus hijos y nietos con infinito amor',
-              'Con todo el amor de tu hija Sofía',
+              'Con todo el amor de tu hija',
               'De parte de toda tu familia',
             ].map((chip) => (
               <button

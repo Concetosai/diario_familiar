@@ -158,8 +158,8 @@ export const HeaderNavbar: React.FC<HeaderNavbarProps> = ({
     return {
       isLoggedIn: true,
       isDemo: true,
-      name: 'Mamá Lety (Demo)',
-      email: 'mamalety@legadofamiliar.app',
+      name: 'Usuario Demo',
+      email: 'demo@legadofamiliar.app',
       role: 'Acceso Completo • 100 Preguntas',
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80',
     };
@@ -195,10 +195,10 @@ export const HeaderNavbar: React.FC<HeaderNavbarProps> = ({
     const demoSession: UserSession = {
       isLoggedIn: true,
       isDemo: true,
-      name: 'Mamá Lety (Modo Demo)',
-      email: 'demo.mamalety@legadofamiliar.app',
+      name: 'Usuario Demo',
+      email: 'demo@legadofamiliar.app',
       role: 'Usuario Master (Creadora Principal)',
-      familyCode: 'FAM-LETY-2026',
+      familyCode: 'FAM-2026',
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80',
     };
     setUserSession(demoSession);
@@ -340,8 +340,8 @@ export const HeaderNavbar: React.FC<HeaderNavbarProps> = ({
 
   const handleSelectEdition = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newEdition = e.target.value as BookEdition;
-    const mom = bookData.metadata.recipientName || 'Mamá Lety';
-    const dad = bookData.metadata.dadName || 'Papá Carlos';
+    const mom = bookData.metadata.recipientName || 'Mamá';
+    const dad = bookData.metadata.dadName || 'Papá';
     const titles = getFormattedBookTitles(newEdition, mom, dad);
 
     onUpdateMetadata({
@@ -751,7 +751,7 @@ export const HeaderNavbar: React.FC<HeaderNavbarProps> = ({
                   className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-amber-50 font-serif font-bold text-xs shadow-md border border-amber-400/50 flex items-center justify-center gap-2 transition-all active:scale-95"
                 >
                   <Rocket className="w-4 h-4 text-amber-200" />
-                  <span>🚀 Probar con Usuario Demo (Mamá Lety)</span>
+                  <span>🚀 Probar con Usuario Demo</span>
                 </button>
 
                 <div className="flex items-center my-2">
@@ -823,7 +823,7 @@ export const HeaderNavbar: React.FC<HeaderNavbarProps> = ({
                       </label>
                       <input
                         type="text"
-                        placeholder="Ej: FAM-LETY-2026"
+                        placeholder="Ej: FAM-2026"
                         value={invitationCodeInput}
                         onChange={(e) => setInvitationCodeInput(e.target.value.toUpperCase())}
                         className="w-full bg-stone-900 text-amber-100 text-xs p-2 rounded-lg border border-amber-700/50 uppercase font-mono tracking-wider focus:outline-none focus:border-amber-400"
@@ -1162,7 +1162,7 @@ export const HeaderNavbar: React.FC<HeaderNavbarProps> = ({
           isOpen={showInviteModal}
           onClose={() => setShowInviteModal(false)}
           bookTitle={bookData.metadata.title}
-          authorName={activeProfile === 'papa' ? 'Papá Carlos' : 'Mamá Lety'}
+          authorName={activeProfile === 'papa' ? 'Papá' : 'Mamá'}
         />
       )}
     </>

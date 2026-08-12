@@ -10,11 +10,11 @@ export interface DynamicTitles {
 
 export function getFormattedBookTitles(
   edition: BookEdition = 'doble_pareja',
-  recipientName: string = 'Mamá Lety',
-  dadName: string = 'Papá Carlos'
+  recipientName: string = 'Mamá',
+  dadName: string = 'Papá'
 ): DynamicTitles {
-  const mom = (recipientName || 'Mamá Lety').trim();
-  const dad = (dadName || 'Papá Carlos').trim();
+  const mom = (recipientName || 'Mamá').trim();
+  const dad = (dadName || 'Papá').trim();
 
   if (edition === 'mama') {
     return {
@@ -27,7 +27,7 @@ export function getFormattedBookTitles(
   }
 
   if (edition === 'papa') {
-    const dadVal = (dadName || recipientName || 'Papá Carlos').trim();
+    const dadVal = (dadName || recipientName || 'Papá').trim();
     return {
       title: `Historia de Vida: ${dadVal}`,
       subtitle: `Diario de Recuerdos, Historias y Sabiduría de Vida de ${dadVal}`,

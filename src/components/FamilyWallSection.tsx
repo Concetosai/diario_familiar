@@ -44,7 +44,7 @@ export const FamilyWallSection: React.FC<FamilyWallSectionProps> = ({
   compact = false,
 }) => {
   const [showComments, setShowComments] = useState(!compact);
-  const [authorName, setAuthorName] = useState('Sofía');
+  const [authorName, setAuthorName] = useState('Hija');
   const [authorRole, setAuthorRole] = useState('Hija');
   const [newCommentText, setNewCommentText] = useState('');
   const [selectedReaction, setSelectedReaction] = useState<ReactionType>('conmueve');
@@ -300,10 +300,10 @@ export const FamilyWallSection: React.FC<FamilyWallSectionProps> = ({
                   }}
                   className="bg-[#F5F2ED] text-[#333333] font-serif font-bold text-xs py-1 px-2.5 rounded-lg border border-[#DCD7CF] cursor-pointer focus:outline-none"
                 >
-                  <option value="Sofía|Hija">🌸 Sofía (Hija)</option>
-                  <option value="Carlos|Hijo">👔 Carlos (Hijo)</option>
-                  <option value="Mateo|Nieto">🧸 Mateo (Nieto)</option>
-                  <option value="Tía Carmen|Familia">❤️ Tía Carmen (Familia)</option>
+                  <option value="Hija|Hija">🌸 Hija</option>
+                  <option value="Hijo|Hijo">👔 Hijo</option>
+                  <option value="Nieto|Nieto">🧸 Nieto</option>
+                  <option value="Familiar|Familia">❤️ Familiar</option>
                 </select>
               </div>
             </div>

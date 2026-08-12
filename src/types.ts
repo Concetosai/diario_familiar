@@ -80,8 +80,8 @@ export interface BookMetadata {
   activeProfile?: ActiveProfile; // 'mama' | 'papa' for active view
   title: string;
   subtitle: string;
-  recipientName: string; // e.g., "Mamá Lety"
-  dadName?: string; // e.g., "Papá Carlos"
+  recipientName: string; // e.g., "Mamá"
+  dadName?: string; // e.g., "Papá"
   authorName?: string;
   bookTitle?: string;
   familyCode?: string;
@@ -105,7 +105,7 @@ export type TimeCapsuleType = 'specific_person' | 'scheduled_date' | 'posthumous
 export interface TimeCapsule {
   id: string;
   title: string;
-  recipientName: string; // e.g. "Sofía (Hija)", "Mateo (Nieto)", "A toda la familia"
+  recipientName: string; // e.g. "Mi Hija", "Mi Nieto", "A toda la familia"
   recipientRelationship?: string;
   capsuleType: TimeCapsuleType;
   unlockDate?: string; // ISO date string for scheduled_date
@@ -119,7 +119,7 @@ export interface TimeCapsule {
   waxSealColor?: 'red' | 'gold' | 'emerald' | 'navy';
   createdAt: string;
   pinCode?: string; // Optional 4-digit PIN protection
-  authorName?: string; // e.g. "Mamá Lety" or "Papá Carlos"
+  authorName?: string; // e.g. "Mamá" or "Papá"
 }
 
 export interface BookData {

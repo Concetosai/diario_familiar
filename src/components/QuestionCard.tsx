@@ -618,7 +618,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                     : 'text-stone-700 hover:bg-rose-50'
                 }`}
               >
-                🌸 Respuesta de Mamá (Lety)
+                🌸 Respuesta de Mamá
               </button>
               <button
                 onClick={() => setActiveCoupleTab('papa')}
@@ -628,7 +628,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                     : 'text-stone-700 hover:bg-sky-50'
                 }`}
               >
-                👔 Respuesta de Papá (Carlos)
+                👔 Respuesta de Papá
               </button>
               <button
                 onClick={() => setActiveCoupleTab('familia')}
@@ -1236,7 +1236,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             isOpen={showBiographerModal}
             onClose={() => setShowBiographerModal(false)}
             questionTitle={question.title}
-            recipientName={answer?.textAnswer ? 'Mamá' : 'Mamá Lety'}
+            recipientName="Mamá"
             giverName="Familia"
             onApplyTextToBook={(appliedText) => {
               setTextValue(appliedText);
@@ -1264,7 +1264,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               <div className="p-4 bg-white/95 rounded-xl border border-rose-200 shadow-2xs space-y-2">
                 <div className="flex items-center justify-between border-b border-rose-100 pb-1.5">
                   <span className="text-xs font-bold text-rose-800 flex items-center gap-1">
-                    🌸 Versión de Mamá (Lety)
+                    🌸 Versión de Mamá
                   </span>
                   <button
                     onClick={() => setActiveCoupleTab('mama')}
@@ -1289,7 +1289,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               <div className="p-4 bg-white/95 rounded-xl border border-sky-200 shadow-2xs space-y-2">
                 <div className="flex items-center justify-between border-b border-sky-100 pb-1.5">
                   <span className="text-xs font-bold text-sky-800 flex items-center gap-1">
-                    👔 Versión de Papá (Carlos)
+                    👔 Versión de Papá
                   </span>
                   <button
                     onClick={() => setActiveCoupleTab('papa')}

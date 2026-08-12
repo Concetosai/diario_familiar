@@ -393,7 +393,7 @@ export const TimeCapsuleSection: React.FC<TimeCapsuleSectionProps> = ({
               {/* Action Bar */}
               <div className="pt-4 border-t border-amber-900/20 flex items-center justify-between gap-2">
                 <span className="text-[11px] font-serif text-stone-500">
-                  Escrito por: {capsule.authorName || 'Mamá Lety'}
+                  Escrito por: {capsule.authorName || 'Mamá'}
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -557,7 +557,7 @@ export const TimeCapsuleSection: React.FC<TimeCapsuleSectionProps> = ({
                     <input
                       type="text"
                       required
-                      placeholder="Ej: Sofía (Hija) o Mateo (Nieto)"
+                      placeholder="Ej: Mi Hija, Mi Nieto"
                       value={newRecipient}
                       onChange={(e) => setNewRecipient(e.target.value)}
                       className="w-full p-2.5 rounded-xl border border-amber-300 bg-white font-serif text-sm focus:outline-none focus:ring-2 focus:ring-amber-800 text-stone-900 shadow-xs"

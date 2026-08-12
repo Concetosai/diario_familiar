@@ -28,14 +28,14 @@ interface InviteFamilyModalProps {
 export const InviteFamilyModal: React.FC<InviteFamilyModalProps> = ({
   isOpen,
   onClose,
-  bookTitle = 'Legado Familiar: Historias de Mamá Lety',
-  authorName = 'Mamá Lety',
-  familyCode = 'FAM-LETY-2026',
+  bookTitle = 'Legado Familiar: Historias de Nuestra Familia',
+  authorName = 'Mamá',
+  familyCode = 'FAM-2026',
 }) => {
   const [activeTab, setActiveTab] = useState<'whatsapp' | 'email' | 'link' | 'qr'>('whatsapp');
 
   // WhatsApp Form State
-  const [waName, setWaName] = useState('Sofía');
+  const [waName, setWaName] = useState('');
   const [waPhone, setWaPhone] = useState('');
   const [waRole, setWaRole] = useState<'lector' | 'coautor'>('lector');
 
@@ -50,9 +50,9 @@ export const InviteFamilyModal: React.FC<InviteFamilyModalProps> = ({
 
   // List of simulated family members currently invited
   const [invitedMembers, setInvitedMembers] = useState([
-    { name: 'Sofía González', role: 'Hija (Lectora)', status: 'Unida', avatar: '🌸' },
-    { name: 'Carlos González', role: 'Hijo (Co-Autor)', status: 'Unido', avatar: '👔' },
-    { name: 'Mateo González', role: 'Nieto (Lector)', status: 'Pendiente', avatar: '🧸' },
+    { name: 'Hija', role: 'Hija (Lectora)', status: 'Unida', avatar: '🌸' },
+    { name: 'Hijo', role: 'Hijo (Co-Autor)', status: 'Unido', avatar: '👔' },
+    { name: 'Nieto', role: 'Nieto (Lector)', status: 'Pendiente', avatar: '🧸' },
   ]);
 
   if (!isOpen) return null;
@@ -228,7 +228,7 @@ export const InviteFamilyModal: React.FC<InviteFamilyModalProps> = ({
                     type="text"
                     value={waName}
                     onChange={(e) => setWaName(e.target.value)}
-                    placeholder="Ej. Sofía, Carlos, Mateo..."
+                    placeholder="Ej. Hermana, hermano, primos..."
                     className="w-full p-2.5 rounded-xl border border-[#DCD7CF] bg-[#FAF8F5] text-xs font-serif focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
                   />
                 </div>
@@ -349,7 +349,7 @@ export const InviteFamilyModal: React.FC<InviteFamilyModalProps> = ({
                     type="text"
                     value={emailName}
                     onChange={(e) => setEmailName(e.target.value)}
-                    placeholder="Carlos González"
+                    placeholder="Ej. Nombre del familiar"
                     className="w-full p-2.5 rounded-xl border border-[#DCD7CF] bg-[#FAF8F5] text-xs font-serif focus:bg-white focus:outline-none"
                   />
                 </div>

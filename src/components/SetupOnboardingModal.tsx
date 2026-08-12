@@ -31,9 +31,8 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
   const activeUserName = userName || parsedSession?.name || '';
   const activeUserEmail = userEmail || parsedSession?.email || '';
 
-  // Filter out legacy test defaults like 'Mamá Lety'
   const rawAuthor = bookData.metadata.authorName;
-  const initialAuthor = rawAuthor && rawAuthor !== 'Mamá Lety' ? rawAuthor : activeUserName;
+  const initialAuthor = rawAuthor ? rawAuthor : activeUserName;
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [bookTitle, setBookTitle] = useState(bookData.metadata.bookTitle || 'Mi Legado de Vida');
@@ -52,7 +51,7 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
   const [isPlayingTts, setIsPlayingTts] = useState(false);
   const autoPlayRef = useRef<number | null>(null);
 
-  const greetingName = authorName && authorName !== 'Mamá Lety' ? authorName : activeUserName;
+  const greetingName = authorName ? authorName : activeUserName;
   const welcomeScript = greetingName
     ? `¡Hola ${greetingName}! Te damos la bienvenida más cálida a tu libro digital de Legado Familiar. Estoy aquí para acompañarte paso a paso en esta hermosa experiencia. En este espacio podrás responder cien preguntas guiadas, restaurar fotografías antiguas con inteligencia artificial, grabar tu propia voz para que tus hijos y nietos te escuchen siempre, y guardar tus memorias de manera privada e independiente en tus subcarpetas personales de Google Drive. Vamos a personalizar tu libro ahora mismo.`
     : `¡Hola! Te damos la bienvenida más cálida a tu libro digital de Legado Familiar. Estoy aquí para acompañarte paso a paso en esta hermosa experiencia. En este espacio podrás responder cien preguntas guiadas, restaurar fotografías antiguas con inteligencia artificial, grabar tu propia voz para que tus hijos y nietos te escuchen siempre, y guardar tus memorias de manera privada e independiente en tus subcarpetas personales de Google Drive. Vamos a personalizar tu libro ahora mismo.`;
@@ -258,7 +257,7 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
                     type="text"
                     value={authorName}
                     onChange={(e) => setAuthorName(e.target.value)}
-                    placeholder="Ej. María González, Carlos Pérez"
+                    placeholder="Ej. Nombre de la protagonista del libro"
                     className="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-sm"
                   />
                   <p className="text-[11px] text-stone-500 mt-1">

@@ -406,7 +406,7 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
                       {/* Mamá Text in PDF */}
                       {momAns?.textAnswer && (
                         <div className="bg-rose-50/60 p-4 rounded-lg border border-rose-200/80 space-y-1">
-                          <p className="text-xs font-bold text-rose-800 font-serif">🌸 Versión de Mamá (Lety):</p>
+                          <p className="text-xs font-bold text-rose-800 font-serif">🌸 Versión de Mamá:</p>
                           <p className="font-serif text-sm text-stone-800 leading-relaxed whitespace-pre-line">
                             {momAns.textAnswer}
                           </p>
@@ -416,7 +416,7 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
                       {/* Papá Text in PDF */}
                       {dadAns?.textAnswer && (
                         <div className="bg-sky-50/60 p-4 rounded-lg border border-sky-200/80 space-y-1">
-                          <p className="text-xs font-bold text-sky-800 font-serif">👔 Versión de Papá (Carlos):</p>
+                          <p className="text-xs font-bold text-sky-800 font-serif">👔 Versión de Papá:</p>
                           <p className="font-serif text-sm text-stone-800 leading-relaxed whitespace-pre-line">
                             {dadAns.textAnswer}
                           </p>
