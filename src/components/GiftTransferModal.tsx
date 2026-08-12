@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Gift,
   Heart,
@@ -93,11 +93,58 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
   const [isUnboxingOpened, setIsUnboxingOpened] = useState(false);
   const [isPlayingTts, setIsPlayingTts] = useState(false);
   const [sonNotification, setSonNotification] = useState<string | null>(null);
+  const autoPlayRef = useRef<number | null>(null);
 
   // Magic Link Generation
   const appOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://legadofamiliar.app';
   const magicToken = 'LEGADO_GIFT_MAMA_2026';
   const magicLink = `${appOrigin}/?giftToken=${magicToken}&giver=${encodeURIComponent(giverName)}&recipient=${encodeURIComponent(recipientName)}&edition=${selectedEdition}`;
+
+  // Spoken guidance for each state of the gift protocol
+  const sonScript = `¡Hola! Bienvenido al Modo Regalo de Legado Familiar. Estoy aquí para acompañarte paso a paso mientras preparas esta hermosa sorpresa para ${computedTitles.protagonistsLabel}. Primero, elige el modelo de libro que deseas regalar: elige Modelo Mamá, Modelo Papá, o el Modelo Familiar para ambos padres. Segundo, llena la tarjeta de dedicatoria: escribe tu nombre en el campo De, escribe el nombre de ${computedTitles.protagonistsLabel}, redacta un mensaje emotivo con todo tu amor, y elige una foto de portada para el regalo. Puedes usar la vista previa para ver cómo lo recibirá tu familia. Tercero, presiona el botón para guardar la configuración y activar el regalo. Finalmente, en el panel de WhatsApp, copia el link mágico o presiona enviar por WhatsApp para mandarle el regalo a ${computedTitles.protagonistsLabel}. ¡Vamos paso a paso, tú puedes!`;
+
+  const unboxingIntroScript = `¡${computedTitles.protagonistsLabel}, tienes un regalo muy especial! Tu familia lo ha preparado con todo el amor para ti. Toca el botón de la caja de regalo para abrirlo y descubrir tu dedicatoria.`;
+
+  const dedicationScript = `Para ${computedTitles.protagonistsLabel}. ${dedicationText} Con todo el amor de ${giverName}. Cuando estés lista, presiona el botón de abajo para comenzar tu libro y asumir el control total como autora.`;
+
+  // Speak a script and track playing state
+  const speakScript = (text: string) => {
+    if (!('speechSynthesis' in window) || !text) return;
+
+    window.speechSynthesis.cancel();
+    speakWithFreeFemaleVoice(text, { lang: 'es-MX', rate: 1.0, pitch: 1.1 }).then((utterance) => {
+      if (!utterance) return;
+      utterance.onend = () => setIsPlayingTts(false);
+      utterance.onerror = () => setIsPlayingTts(false);
+    });
+    setIsPlayingTts(true);
+  };
+
+  // Auto-play the spoken guide when the modal opens or the state changes
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (autoPlayRef.current) {
+      window.clearTimeout(autoPlayRef.current);
+    }
+
+    const currentScript = step === 1
+      ? sonScript
+      : isUnboxingOpened
+        ? dedicationScript
+        : unboxingIntroScript;
+
+    autoPlayRef.current = window.setTimeout(() => {
+      speakScript(currentScript);
+    }, 350);
+
+    return () => {
+      if (autoPlayRef.current) {
+        window.clearTimeout(autoPlayRef.current);
+        autoPlayRef.current = null;
+      }
+    };
+  }, [isOpen, step, isUnboxingOpened]);
 
   // Save Dedication Handler
   const handleSaveDedication = () => {
@@ -158,19 +205,13 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
       return;
     }
 
-    window.speechSynthesis.cancel();
-    const targetLabel = computedTitles.protagonistsLabel;
-    const script = `Para ${targetLabel}. ${dedicationText}. Con todo el amor de ${giverName}.`;
+    const script = step === 1
+      ? sonScript
+      : isUnboxingOpened
+        ? dedicationScript
+        : unboxingIntroScript;
 
-    speakWithFreeFemaleVoice(script, { lang: 'es-MX', rate: 1.0, pitch: 1.1 }).then((utterance) => {
-      if (!utterance) {
-        setIsPlayingTts(false);
-        return;
-      }
-      utterance.onend = () => setIsPlayingTts(false);
-      utterance.onerror = () => setIsPlayingTts(false);
-    });
-    setIsPlayingTts(true);
+    speakScript(script);
   };
 
   // Protagonist clicks "❤️ Comenzar mi Libro"
@@ -264,6 +305,27 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
           {/* ============================================================ */}
           {step === 1 && (
             <div className="space-y-5 animate-fadeIn">
+              {/* Guided Steps Callout */}
+              <div className="bg-amber-50/80 border border-amber-300/80 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-bold text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                  <BookHeart className="w-4 h-4 text-rose-700" /> Cómo preparar la sorpresa — sigue estos pasos
+                </p>
+                <ol className="list-decimal list-inside text-xs text-stone-700 space-y-1.5 leading-relaxed">
+                  <li>
+                    <strong>Selecciona el modelo</strong> del libro: Mamá, Papá o Familiar para ambos.
+                  </li>
+                  <li>
+                    <strong>Llena la tarjeta de dedicatoria:</strong> escribe tu nombre, el nombre de tu mamá o papá, un mensaje emotivo y elige una foto de portada.
+                  </li>
+                  <li>
+                    <strong>Guarda la configuración</strong> con el botón “✅ Guardar Configuración y Activar Regalo”.
+                  </li>
+                  <li>
+                    <strong>Envía el regalo:</strong> copia el Link Mágico o presiona “🎁 Enviar por WhatsApp” para que tu mamá lo reciba y abra su libro.
+                  </li>
+                </ol>
+              </div>
+
               {/* Progress Steps Header */}
               <div className="bg-amber-100/70 p-3 rounded-xl border border-amber-300/60 flex items-center justify-between text-xs font-medium text-amber-950">
                 <div className="flex items-center gap-1.5">
