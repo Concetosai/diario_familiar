@@ -24,6 +24,109 @@ export function createApp() {
     },
   });
 
+  // --- MULTI-PROVIDER AI HELPERS (Gemini / OpenRouter) ---
+  type AiProvider = 'gemini' | 'openrouter';
+
+  type AiPart =
+    | { type: 'text'; text: string }
+    | { type: 'audio'; mimeType: string; data: string }
+    | { type: 'image'; mimeType: string; data: string };
+
+  interface AiGenerateInput {
+    provider?: AiProvider;
+    systemInstruction?: string;
+    json?: boolean;
+    model?: string;
+    parts: AiPart[];
+  }
+
+  function mimeToAudioFormat(mimeType: string): string {
+    const lower = (mimeType || '').toLowerCase();
+    if (lower.includes('wav')) return 'wav';
+    if (lower.includes('mpeg') || lower.includes('mp3')) return 'mp3';
+    return 'wav';
+  }
+
+  async function aiGenerateGemini({ systemInstruction, json, parts }: AiGenerateInput): Promise<string> {
+    const contents: any[] = parts.map((part) =>
+      part.type === 'text'
+        ? { text: part.text }
+        : { inlineData: { mimeType: part.mimeType, data: part.data } }
+    );
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.6-flash',
+      contents,
+      config: {
+        ...(systemInstruction ? { systemInstruction } : {}),
+        ...(json ? { responseMimeType: 'application/json' } : {}),
+      },
+    });
+    return (response.text || '').trim();
+  }
+
+  async function aiGenerateOpenRouter({ systemInstruction, json, model, parts }: AiGenerateInput): Promise<string> {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error('Falta OPENROUTER_API_KEY en el entorno para usar OpenRouter');
+    }
+
+    const content: any[] = parts.map((part) => {
+      if (part.type === 'text') {
+        return { type: 'text', text: part.text };
+      }
+      if (part.type === 'audio') {
+        return {
+          type: 'input_audio',
+          input_audio: { data: part.data, format: mimeToAudioFormat(part.mimeType) },
+        };
+      }
+      return {
+        type: 'image_url',
+        image_url: { url: `data:${part.mimeType};base64,${part.data}` },
+      };
+    });
+
+    const messages: any[] = [];
+    if (systemInstruction) {
+      messages.push({ role: 'system', content: systemInstruction });
+    }
+    messages.push({ role: 'user', content });
+
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://legadofamiliar.app',
+        'X-Title': 'Legado Familiar',
+      },
+      body: JSON.stringify({
+        model: model || process.env.OPENROUTER_MODEL || '~openai/gpt-latest',
+        messages,
+        ...(json ? { response_format: { type: 'json_object' } } : {}),
+      }),
+    });
+
+    if (!res.ok) {
+      const errTxt = await res.text();
+      console.error('OpenRouter error:', errTxt);
+      throw new Error(`OpenRouter error ${res.status}: ${errTxt}`);
+    }
+
+    const data = await res.json();
+    const text = data?.choices?.[0]?.message?.content;
+    return typeof text === 'string' ? text.trim() : '';
+  }
+
+  async function aiGenerate({ provider, systemInstruction, json, model, parts }: AiGenerateInput): Promise<string> {
+    const selectedProvider: AiProvider = provider || (process.env.AI_PROVIDER as AiProvider) || 'gemini';
+    if (selectedProvider === 'openrouter') {
+      return aiGenerateOpenRouter({ provider, systemInstruction, json, model, parts });
+    }
+    return aiGenerateGemini({ provider, systemInstruction, json, model, parts });
+  }
+
   // --- GOOGLE DRIVE INTEGRATION HELPERS ---
   const ROOT_TEST_FOLDER_ID = '1lbpiW3HA4Y4boOGRMMrW9U42miKiqy8L';
 
@@ -188,16 +291,14 @@ export function createApp() {
       // Clean base64 string if it contains data header
       const cleanBase64 = audioBase64.replace(/^data:audio\/[a-z0-9]+;base64,/, '');
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: [
+      const responseText = await aiGenerate({
+        provider: req.body.provider,
+        model: process.env.OPENROUTER_TRANSCRIBE_MODEL,
+        json: true,
+        parts: [
+          { type: 'audio', mimeType, data: cleanBase64 },
           {
-            inlineData: {
-              mimeType,
-              data: cleanBase64,
-            },
-          },
-          {
+            type: 'text',
             text: `Eres una asistente literaria cariñosa para el libro de recuerdos "Mamá, déjame conocerte con 100 preguntas".
 Analiza el audio grabado por la mamá para la pregunta: "${questionTitle}".
 Genera un objeto JSON estricto con dos salidas de texto:
@@ -205,20 +306,17 @@ Genera un objeto JSON estricto con dos salidas de texto:
 2. "summaryText": Un resumen inteligente, fluido y emotivo de 1 a 2 párrafos redactado en primera persona ("Yo..."), optimizado para la maquetación e impresión en papel del libro físico sin perder la esencia.`,
           },
         ],
-        config: {
-          responseMimeType: 'application/json',
-        },
       });
 
       let transcription = 'No se pudo obtener la transcripción.';
       let summaryText = 'Resumen no disponible.';
 
       try {
-        const parsed = JSON.parse(response.text || '{}');
+        const parsed = JSON.parse(responseText || '{}');
         if (parsed.transcription) transcription = parsed.transcription;
         if (parsed.summaryText) summaryText = parsed.summaryText;
       } catch (e) {
-        transcription = response.text?.trim() || transcription;
+        transcription = responseText?.trim() || transcription;
         summaryText = transcription;
       }
 
@@ -379,12 +477,12 @@ Borrador de mamá / Notas: "${userText}"
 
 Escribe una versión limpia, emotiva y fluida redactada en primera persona ("Yo..."). Mantén el tono genuino y natural de una madre hablándole a su hijo/a. Muestra el texto listo para ser guardado en el libro.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
+      const responseText = await aiGenerate({
+        provider: req.body.provider,
+        parts: [{ type: 'text', text: prompt }],
       });
 
-      res.json({ success: true, polishedText: response.text?.trim() });
+      res.json({ success: true, polishedText: responseText });
     } catch (err: any) {
       console.error('Error polishing text:', err);
       res.status(500).json({ error: 'Error rediseñando texto', details: err.message });
@@ -402,16 +500,13 @@ Escribe una versión limpia, emotiva y fluida redactada en primera persona ("Yo.
 
       const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: [
+      const responseText = await aiGenerate({
+        provider: req.body.provider,
+        json: true,
+        parts: [
+          { type: 'image', mimeType, data: cleanBase64 },
           {
-            inlineData: {
-              mimeType,
-              data: cleanBase64,
-            },
-          },
-          {
+            type: 'text',
             text: `Analiza esta fotografía familiar o antigua para el diario de recuerdos "${questionTitle || 'Recuerdos de Mamá'}". 
 Responde con un formato JSON estricto con los siguientes campos:
 1. "caption": Un pie de foto nostálgico y afectuoso de 1 a 2 oraciones.
@@ -419,12 +514,9 @@ Responde con un formato JSON estricto con los siguientes campos:
 3. "description": Breve descripción visual de los detalles nostálgicos (colores, atuendos, entorno).`,
           },
         ],
-        config: {
-          responseMimeType: 'application/json',
-        },
       });
 
-      const parsed = JSON.parse(response.text || '{}');
+      const parsed = JSON.parse(responseText || '{}');
       res.json({ success: true, ...parsed });
     } catch (err: any) {
       console.error('Error analyzing photo:', err);
@@ -443,16 +535,13 @@ Responde con un formato JSON estricto con los siguientes campos:
 
       const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: [
+      const responseText = await aiGenerate({
+        provider: req.body.provider,
+        json: true,
+        parts: [
+          { type: 'image', mimeType: 'image/jpeg', data: cleanBase64 },
           {
-            inlineData: {
-              mimeType: 'image/jpeg',
-              data: cleanBase64,
-            },
-          },
-          {
+            type: 'text',
             text: `Actúa como un experto restaurador de fotografías antiguas de museo y archivos históricos familiares.
 Analiza la foto adjunta y genera un reporte técnico-emotivo de restauración.
 Menciona en un objeto JSON estricto:
@@ -461,12 +550,9 @@ Menciona en un objeto JSON estricto:
 3. "emotionalQuote": Una frase corta y conmovedora sobre preservar este recuerdo para las futuras generaciones.`,
           },
         ],
-        config: {
-          responseMimeType: 'application/json',
-        },
       });
 
-      const parsed = JSON.parse(response.text || '{}');
+      const parsed = JSON.parse(responseText || '{}');
       res.json({ success: true, ...parsed });
     } catch (err: any) {
       console.error('Error in photo restore report:', err);
@@ -511,21 +597,19 @@ Acción solicitada: "${action}"
 
 Genera el objeto JSON con aiReply, suggestedDraft e inspirationTips.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: contentsPrompt,
-        config: {
-          systemInstruction,
-          responseMimeType: 'application/json',
-        },
+      const responseText = await aiGenerate({
+        provider: req.body.provider,
+        systemInstruction,
+        json: true,
+        parts: [{ type: 'text', text: contentsPrompt }],
       });
 
       let parsed = {};
       try {
-        parsed = JSON.parse(response.text || '{}');
+        parsed = JSON.parse(responseText || '{}');
       } catch (e) {
         parsed = {
-          aiReply: response.text?.trim() || `Hola ${recipientName}, qué alegría platicar contigo. Cuéntame con tus palabras lo primero que venga a tu mente sobre esta pregunta, no te preocupes por la redacción.`,
+          aiReply: responseText?.trim() || `Hola ${recipientName}, qué alegría platicar contigo. Cuéntame con tus palabras lo primero que venga a tu mente sobre esta pregunta, no te preocupes por la redacción.`,
           suggestedDraft: '',
           inspirationTips: ['Recuerda la música que sonaba en la radio', 'Los olores de la casa de tu infancia', 'El nombre de tus mejores amigos'],
         };

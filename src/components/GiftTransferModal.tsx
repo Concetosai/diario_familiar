@@ -39,6 +39,12 @@ interface GiftTransferModalProps {
   onUpdateMetadata: (updated: Partial<BookMetadata>) => void;
   onTransferToMomMaster: () => void;
   initialStep?: 1 | 2;
+  linkEdition?: BookEdition;
+  linkGiverName?: string;
+  linkRecipientName?: string;
+  linkDadName?: string;
+  linkDedication?: string;
+  linkPhotoUrl?: string;
   userName?: string;
   userEmail?: string;
 }
@@ -57,6 +63,12 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
   onUpdateMetadata,
   onTransferToMomMaster,
   initialStep = 1,
+  linkEdition,
+  linkGiverName,
+  linkRecipientName,
+  linkDadName,
+  linkDedication,
+  linkPhotoUrl,
   userName = '',
   userEmail = '',
 }) => {
@@ -67,19 +79,30 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
     setStep(initialStep);
   }, [initialStep]);
 
+  // Sync the gift card config when the magic-link params arrive (e.g. opened from a link)
+  useEffect(() => {
+    if (linkEdition) setSelectedEdition(linkEdition);
+    if (linkGiverName) setGiverName(linkGiverName);
+    if (linkRecipientName) setRecipientName(linkRecipientName);
+    if (linkDadName) setDadName(linkDadName);
+    if (linkDedication) setDedicationText(linkDedication);
+    if (linkPhotoUrl) setGiftPhotoUrl(linkPhotoUrl);
+  }, [linkEdition, linkGiverName, linkRecipientName, linkDadName, linkDedication, linkPhotoUrl]);
+
   // PASO 1 STATE (Son / Giver)
   const [selectedEdition, setSelectedEdition] = useState<BookEdition>(
-    bookData.metadata.edition || 'doble_pareja'
+    linkEdition || bookData.metadata.edition || 'doble_pareja'
   );
-  const [giverName, setGiverName] = useState(bookData.metadata.giverName || userName || 'Tu hijo');
-  const [recipientName, setRecipientName] = useState(bookData.metadata.recipientName || 'Mamá');
-  const [dadName, setDadName] = useState(bookData.metadata.dadName || 'Papá');
+  const [giverName, setGiverName] = useState(linkGiverName || bookData.metadata.giverName || userName || 'Tu hijo');
+  const [recipientName, setRecipientName] = useState(linkRecipientName || bookData.metadata.recipientName || 'Mamá');
+  const [dadName, setDadName] = useState(linkDadName || bookData.metadata.dadName || 'Papá');
   const [dedicationText, setDedicationText] = useState(
-    bookData.metadata.dedication ||
+    linkDedication ||
+      bookData.metadata.dedication ||
       'Queridos padres, este libro es un regalo de toda la familia para guardar sus historias, sus hermosas memorias y sus voces para siempre. Queremos escucharlos y recordar cada momento de sus vidas. Los amamos profundamente.'
   );
   const [giftPhotoUrl, setGiftPhotoUrl] = useState(
-    bookData.metadata.coverPhotoUrl || PRESET_PHOTOS[0]
+    linkPhotoUrl || bookData.metadata.coverPhotoUrl || PRESET_PHOTOS[0]
   );
   const [whatsappPhone, setWhatsappPhone] = useState('');
   const [isSaved, setIsSaved] = useState(false);
@@ -94,11 +117,22 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
   const [isPlayingTts, setIsPlayingTts] = useState(false);
   const [sonNotification, setSonNotification] = useState<string | null>(null);
   const autoPlayRef = useRef<number | null>(null);
+  const ttsGenerationRef = useRef(0);
+  const speechStartedRef = useRef(false);
+  const interactionFallbackRef = useRef<(() => void) | null>(null);
+  const isOpenRef = useRef(isOpen);
+  const currentScriptRef = useRef('');
 
-  // Magic Link Generation
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  // Magic Link Generation (carries the full gift-card configuration)
   const appOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://legadofamiliar.app';
   const magicToken = 'LEGADO_GIFT_MAMA_2026';
-  const magicLink = `${appOrigin}/?giftToken=${magicToken}&giver=${encodeURIComponent(giverName)}&recipient=${encodeURIComponent(recipientName)}&edition=${selectedEdition}`;
+  const photoParam =
+    giftPhotoUrl && giftPhotoUrl.startsWith('http') ? `&photo=${encodeURIComponent(giftPhotoUrl)}` : '';
+  const magicLink = `${appOrigin}/?giftToken=${magicToken}&giver=${encodeURIComponent(giverName)}&recipient=${encodeURIComponent(recipientName)}&dad=${encodeURIComponent(dadName)}&dedication=${encodeURIComponent(dedicationText)}&edition=${selectedEdition}${photoParam}`;
 
   // Spoken guidance for each state of the gift protocol
   const sonScript = `¡Hola! Bienvenido al Modo Regalo de Legado Familiar. Estoy aquí para acompañarte paso a paso mientras preparas esta hermosa sorpresa para ${computedTitles.protagonistsLabel}. Primero, elige el modelo de libro que deseas regalar: elige Modelo Mamá, Modelo Papá, o el Modelo Familiar para ambos padres. Segundo, llena la tarjeta de dedicatoria: escribe tu nombre en el campo De, escribe el nombre de ${computedTitles.protagonistsLabel}, redacta un mensaje emotivo con todo tu amor, y elige una foto de portada para el regalo. Puedes usar la vista previa para ver cómo lo recibirá tu familia. Tercero, presiona el botón para guardar la configuración y activar el regalo. Finalmente, en el panel de WhatsApp, copia el link mágico o presiona enviar por WhatsApp para mandarle el regalo a ${computedTitles.protagonistsLabel}. ¡Vamos paso a paso, tú puedes!`;
@@ -107,44 +141,112 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
 
   const dedicationScript = `Para ${computedTitles.protagonistsLabel}. ${dedicationText} Con todo el amor de ${giverName}. Cuando estés lista, presiona el botón de abajo para comenzar tu libro y asumir el control total como autora.`;
 
-  // Speak a script and track playing state
+  // Resolves the narration script for the current gift state
+  const getCurrentScript = () => {
+    if (step === 1) return sonScript;
+    return isUnboxingOpened ? dedicationScript : unboxingIntroScript;
+  };
+
+  // Keep the latest script available to async timers so autoplay never greets
+  // with a stale edition before the magic-link sync finishes.
+  currentScriptRef.current = getCurrentScript();
+
+  // Removes any pending auto-play timer and user-gesture fallback listeners
+  const clearPendingAutoPlay = () => {
+    if (autoPlayRef.current) {
+      window.clearTimeout(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
+    if (interactionFallbackRef.current) {
+      window.removeEventListener('pointerdown', interactionFallbackRef.current);
+      window.removeEventListener('touchstart', interactionFallbackRef.current);
+      window.removeEventListener('keydown', interactionFallbackRef.current);
+      interactionFallbackRef.current = null;
+    }
+  };
+
+  // Stops any ongoing or pending narration (used when closing the modal)
+  const stopTts = () => {
+    ttsGenerationRef.current += 1;
+    clearPendingAutoPlay();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlayingTts(false);
+  };
+
+  // Speak a script and track playing state. If the browser blocks autoplay until a
+  // user gesture, the narration starts automatically on the first interaction.
   const speakScript = (text: string) => {
     if (!('speechSynthesis' in window) || !text) return;
 
+    const generation = ++ttsGenerationRef.current;
+    clearPendingAutoPlay();
     window.speechSynthesis.cancel();
-    speakWithFreeFemaleVoice(text, { lang: 'es-MX', rate: 1.0, pitch: 1.1 }).then((utterance) => {
-      if (!utterance) return;
-      utterance.onend = () => setIsPlayingTts(false);
-      utterance.onerror = () => setIsPlayingTts(false);
-    });
+    speechStartedRef.current = false;
     setIsPlayingTts(true);
+
+    speakWithFreeFemaleVoice(text, {
+      lang: 'es-MX',
+      rate: 1.0,
+      pitch: 1.1,
+      shouldAbort: () => generation !== ttsGenerationRef.current || !isOpenRef.current,
+    }).then((utterance) => {
+      if (generation !== ttsGenerationRef.current) return;
+      if (!utterance) {
+        setIsPlayingTts(false);
+        return;
+      }
+      speechStartedRef.current = true;
+      utterance.onend = () => {
+        if (generation === ttsGenerationRef.current) setIsPlayingTts(false);
+      };
+      utterance.onerror = () => {
+        if (generation === ttsGenerationRef.current) setIsPlayingTts(false);
+      };
+    });
+
+    // Fallback: if the speech didn't start (autoplay policy), retry on first gesture.
+    window.setTimeout(() => {
+      if (generation !== ttsGenerationRef.current) return;
+      if (speechStartedRef.current || window.speechSynthesis.speaking) return;
+
+      const retry = () => {
+        clearPendingAutoPlay();
+        if (speechStartedRef.current || window.speechSynthesis.speaking) return;
+        speakScript(currentScriptRef.current);
+      };
+      window.addEventListener('pointerdown', retry);
+      window.addEventListener('touchstart', retry);
+      window.addEventListener('keydown', retry);
+      interactionFallbackRef.current = retry;
+    }, 900);
   };
+
+  // Stop narration whenever the modal is closed / cancelled
+  useEffect(() => {
+    if (!isOpen) {
+      stopTts();
+    }
+  }, [isOpen]);
 
   // Auto-play the spoken guide when the modal opens or the state changes
   useEffect(() => {
     if (!isOpen) return;
 
-    if (autoPlayRef.current) {
-      window.clearTimeout(autoPlayRef.current);
-    }
-
-    const currentScript = step === 1
-      ? sonScript
-      : isUnboxingOpened
-        ? dedicationScript
-        : unboxingIntroScript;
+    clearPendingAutoPlay();
 
     autoPlayRef.current = window.setTimeout(() => {
-      speakScript(currentScript);
-    }, 350);
+      speakScript(currentScriptRef.current);
+    }, 300);
 
-    return () => {
-      if (autoPlayRef.current) {
-        window.clearTimeout(autoPlayRef.current);
-        autoPlayRef.current = null;
-      }
-    };
+    return () => clearPendingAutoPlay();
   }, [isOpen, step, isUnboxingOpened]);
+
+  // Stop any narration if the component unmounts
+  useEffect(() => {
+    return () => stopTts();
+  }, []);
 
   // Save Dedication Handler
   const handleSaveDedication = () => {
@@ -200,18 +302,11 @@ export const GiftTransferModal: React.FC<GiftTransferModalProps> = ({
     if (!('speechSynthesis' in window)) return;
 
     if (isPlayingTts) {
-      window.speechSynthesis.cancel();
-      setIsPlayingTts(false);
+      stopTts();
       return;
     }
 
-    const script = step === 1
-      ? sonScript
-      : isUnboxingOpened
-        ? dedicationScript
-        : unboxingIntroScript;
-
-    speakScript(script);
+    speakScript(getCurrentScript());
   };
 
   // Protagonist clicks "❤️ Comenzar mi Libro"

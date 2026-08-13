@@ -120,11 +120,14 @@ export async function getBestFemaleSpanishVoice(): Promise<SpeechSynthesisVoice 
 }
 
 // Builds a SpeechSynthesisUtterance using the best free female Spanish voice.
+// `shouldAbort` lets callers skip speaking (and skip the voice-loading wait) once
+// their UI was closed/cancelled before the voice finished loading.
 export async function speakWithFreeFemaleVoice(
   text: string,
-  options: { lang?: string; rate?: number; pitch?: number } = {}
+  options: { lang?: string; rate?: number; pitch?: number; shouldAbort?: () => boolean } = {}
 ): Promise<SpeechSynthesisUtterance | null> {
   if (!('speechSynthesis' in window) || !text) return null;
+  if (options.shouldAbort && options.shouldAbort()) return null;
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = options.lang || 'es-MX';
@@ -132,6 +135,7 @@ export async function speakWithFreeFemaleVoice(
   utterance.pitch = options.pitch ?? 1.1;
 
   const voice = await getBestFemaleSpanishVoice();
+  if (options.shouldAbort && options.shouldAbort()) return null;
   if (voice) {
     utterance.voice = voice;
   }

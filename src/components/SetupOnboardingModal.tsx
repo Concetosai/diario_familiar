@@ -50,6 +50,14 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
   // Text To Speech (TTS) Controls
   const [isPlayingTts, setIsPlayingTts] = useState(false);
   const autoPlayRef = useRef<number | null>(null);
+  const ttsGenerationRef = useRef(0);
+  const speechStartedRef = useRef(false);
+  const interactionFallbackRef = useRef<(() => void) | null>(null);
+  const isOpenRef = useRef(isOpen);
+
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
 
   const greetingName = authorName ? authorName : activeUserName;
   const welcomeScript = greetingName
@@ -63,52 +71,105 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
     3: `Ya casi terminas. Mira el resumen de tu configuración para confirmar que todo esté correcto. Estos datos aparecerán en la portada de tu libro, en tus exportaciones en PDF y en cada recuerdo que compartas. Si todo se ve bien, presiona el botón Guardar y Comenzar Mi Legado. Después de esto, se abrirá tu libro y podrás comenzar a responder la primera pregunta: elige la etapa de vida, escribe tu respuesta o graba tu voz, y presiona el botón para guardar. Tus hijos y nietos podrán leer tus memorias para siempre. ¡Empecemos!`,
   };
 
-  // Speak a script and track playing state
+  // Removes any pending auto-play timer and user-gesture fallback listeners
+  const clearPendingAutoPlay = () => {
+    if (autoPlayRef.current) {
+      window.clearTimeout(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
+    if (interactionFallbackRef.current) {
+      window.removeEventListener('pointerdown', interactionFallbackRef.current);
+      window.removeEventListener('touchstart', interactionFallbackRef.current);
+      window.removeEventListener('keydown', interactionFallbackRef.current);
+      interactionFallbackRef.current = null;
+    }
+  };
+
+  // Stops any ongoing or pending narration (used when closing/omitting the modal)
+  const stopTts = () => {
+    ttsGenerationRef.current += 1;
+    clearPendingAutoPlay();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlayingTts(false);
+  };
+
+  // Speak a script and track playing state. If the browser blocks autoplay until a
+  // user gesture, the narration starts automatically on the first interaction.
   const speakScript = (text: string) => {
     if (!('speechSynthesis' in window) || !text) return;
 
+    const generation = ++ttsGenerationRef.current;
+    clearPendingAutoPlay();
     window.speechSynthesis.cancel();
-    speakWithFreeFemaleVoice(text, { lang: 'es-MX', rate: 1.0, pitch: 1.1 }).then((utterance) => {
-      if (!utterance) return;
-      utterance.onend = () => setIsPlayingTts(false);
-      utterance.onerror = () => setIsPlayingTts(false);
-    });
+    speechStartedRef.current = false;
     setIsPlayingTts(true);
+
+    speakWithFreeFemaleVoice(text, {
+      lang: 'es-MX',
+      rate: 1.0,
+      pitch: 1.1,
+      shouldAbort: () => generation !== ttsGenerationRef.current || !isOpenRef.current,
+    }).then((utterance) => {
+      if (generation !== ttsGenerationRef.current) return;
+      if (!utterance) {
+        setIsPlayingTts(false);
+        return;
+      }
+      speechStartedRef.current = true;
+      utterance.onend = () => {
+        if (generation === ttsGenerationRef.current) setIsPlayingTts(false);
+      };
+      utterance.onerror = () => {
+        if (generation === ttsGenerationRef.current) setIsPlayingTts(false);
+      };
+    });
+
+    // Fallback: if the speech didn't start (autoplay policy), retry on first gesture.
+    window.setTimeout(() => {
+      if (generation !== ttsGenerationRef.current) return;
+      if (speechStartedRef.current || window.speechSynthesis.speaking) return;
+
+      const retry = () => {
+        clearPendingAutoPlay();
+        if (speechStartedRef.current || window.speechSynthesis.speaking) return;
+        speakScript(stepScripts[currentStep] || welcomeScript);
+      };
+      window.addEventListener('pointerdown', retry);
+      window.addEventListener('touchstart', retry);
+      window.addEventListener('keydown', retry);
+      interactionFallbackRef.current = retry;
+    }, 900);
   };
+
+  // Stop narration whenever the modal is closed / skipped / finished
+  useEffect(() => {
+    if (!isOpen) {
+      stopTts();
+    }
+  }, [isOpen]);
 
   // Auto-play the spoken guide each time the modal opens or the step changes
   useEffect(() => {
     if (!isOpen) return;
 
-    if (autoPlayRef.current) {
-      window.clearTimeout(autoPlayRef.current);
-    }
+    clearPendingAutoPlay();
 
     autoPlayRef.current = window.setTimeout(() => {
       speakScript(stepScripts[currentStep] || welcomeScript);
-    }, 350);
+    }, 300);
 
-    return () => {
-      if (autoPlayRef.current) {
-        window.clearTimeout(autoPlayRef.current);
-        autoPlayRef.current = null;
-      }
-    };
+    return () => clearPendingAutoPlay();
   }, [isOpen, currentStep]);
 
   // Initialize SpeechSynthesis and preload the best free female Spanish voice
   useEffect(() => {
-    if (!('speechSynthesis' in window)) {
-      return;
+    if ('speechSynthesis' in window) {
+      getBestFemaleSpanishVoice();
     }
 
-    getBestFemaleSpanishVoice();
-
-    return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
+    return () => stopTts();
   }, []);
 
   // Play / Pause SpeechSynthesis
@@ -116,8 +177,7 @@ export const SetupOnboardingModal: React.FC<SetupOnboardingModalProps> = ({
     if (!('speechSynthesis' in window)) return;
 
     if (isPlayingTts) {
-      window.speechSynthesis.cancel();
-      setIsPlayingTts(false);
+      stopTts();
       return;
     }
 

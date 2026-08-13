@@ -26,16 +26,46 @@ export default function App() {
   const [momMode, setMomMode] = useState(false);
   const [showIndexModal, setShowIndexModal] = useState(false);
   const [questionnaireMode, setQuestionnaireMode] = useState<'focus_page' | 'split_index'>('focus_page');
+  const [giftLinkParams, setGiftLinkParams] = useState<{
+    edition?: BookEdition;
+    giverName?: string;
+    recipientName?: string;
+    dadName?: string;
+    dedication?: string;
+    photoUrl?: string;
+  }>({});
 
   // URL Magic Link Detector for Gift / Unboxing Flow on boot
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
       const giftToken = searchParams.get('giftToken') || searchParams.get('token') || searchParams.get('gift');
-      
+
       if (giftToken) {
+        const editionParam = searchParams.get('edition');
+        const linkEdition: BookEdition | undefined =
+          editionParam === 'mama' || editionParam === 'papa' || editionParam === 'doble_pareja'
+            ? editionParam
+            : undefined;
+
         setGiftInitialStep(2); // Step 2: Mamá (Receptora / Unboxing)
+        setGiftLinkParams({
+          edition: linkEdition,
+          giverName: searchParams.get('giver') || undefined,
+          recipientName: searchParams.get('recipient') || undefined,
+          dadName: searchParams.get('dad') || undefined,
+          dedication: searchParams.get('dedication') || undefined,
+          photoUrl: searchParams.get('photo') || undefined,
+        });
         setShowGiftModal(true);
+
+        // Keep the whole app aligned with the edition the giver selected
+        if (linkEdition) {
+          handleUpdateMetadata({
+            edition: linkEdition,
+            activeProfile: linkEdition === 'papa' ? 'papa' : 'mama',
+          });
+        }
       }
 
       // Check if Son has a notification from Mom opening the gift
@@ -412,14 +442,21 @@ export default function App() {
               bookData={bookData}
               onUpdateMetadata={handleUpdateMetadata}
               onTransferToMomMaster={() => {
+                const transferEdition: BookEdition = giftLinkParams.edition || bookData.metadata.edition || 'mama';
                 setMomMode(true);
-                handleUpdateMetadata({ activeProfile: 'mama', edition: 'mama' });
+                handleUpdateMetadata({ activeProfile: transferEdition === 'papa' ? 'papa' : 'mama', edition: transferEdition });
                 handleQuickSave();
                 setShowGiftModal(false);
                 // Immediately open Mom's Onboarding assistant with female Spanish TTS, Drive config & guided reading!
                 setShowSetupModal(true);
               }}
               initialStep={giftInitialStep}
+              linkEdition={giftLinkParams.edition}
+              linkGiverName={giftLinkParams.giverName}
+              linkRecipientName={giftLinkParams.recipientName}
+              linkDadName={giftLinkParams.dadName}
+              linkDedication={giftLinkParams.dedication}
+              linkPhotoUrl={giftLinkParams.photoUrl}
               userName={userSession?.name}
               userEmail={userSession?.email}
             />
