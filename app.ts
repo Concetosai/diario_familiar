@@ -37,6 +37,7 @@ export function createApp() {
     systemInstruction?: string;
     json?: boolean;
     model?: string;
+    freeOnly?: boolean;
     parts: AiPart[];
   }
 
@@ -46,6 +47,18 @@ export function createApp() {
     if (lower.includes('mpeg') || lower.includes('mp3')) return 'mp3';
     return 'wav';
   }
+
+  // Free models used as automatic fallback when Gemini runs out of tokens.
+  // `openrouter/free` auto-routes to the best available free model (the
+  // individual `:free` models are often rate-limited upstream, so it goes first).
+  // Order matters: the first available model wins.
+  const FREE_OPENSOURCE_MODELS = [
+    'openrouter/free',
+    'google/gemma-4-31b-it:free',
+    'openai/gpt-oss-20b:free',
+    'nvidia/nemotron-3-super-120b-a12b:free',
+    'nvidia/nemotron-nano-12b-v2-vl:free',
+  ];
 
   async function aiGenerateGemini({ systemInstruction, json, parts }: AiGenerateInput): Promise<string> {
     const contents: any[] = parts.map((part) =>
@@ -65,12 +78,11 @@ export function createApp() {
     return (response.text || '').trim();
   }
 
-  async function aiGenerateOpenRouter({ systemInstruction, json, model, parts }: AiGenerateInput): Promise<string> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      throw new Error('Falta OPENROUTER_API_KEY en el entorno para usar OpenRouter');
-    }
-
+  // Single OpenRouter request against a specific model
+  async function callOpenRouter(
+    candidateModel: string,
+    { systemInstruction, json, parts, apiKey }: { systemInstruction?: string; json?: boolean; parts: AiPart[]; apiKey: string }
+  ): Promise<string> {
     const content: any[] = parts.map((part) => {
       if (part.type === 'text') {
         return { type: 'text', text: part.text };
@@ -102,7 +114,7 @@ export function createApp() {
         'X-Title': 'Legado Familiar',
       },
       body: JSON.stringify({
-        model: model || process.env.OPENROUTER_MODEL || '~openai/gpt-latest',
+        model: candidateModel,
         messages,
         ...(json ? { response_format: { type: 'json_object' } } : {}),
       }),
@@ -110,7 +122,7 @@ export function createApp() {
 
     if (!res.ok) {
       const errTxt = await res.text();
-      console.error('OpenRouter error:', errTxt);
+      console.error(`OpenRouter error (${candidateModel}):`, errTxt);
       throw new Error(`OpenRouter error ${res.status}: ${errTxt}`);
     }
 
@@ -119,12 +131,54 @@ export function createApp() {
     return typeof text === 'string' ? text.trim() : '';
   }
 
-  async function aiGenerate({ provider, systemInstruction, json, model, parts }: AiGenerateInput): Promise<string> {
-    const selectedProvider: AiProvider = provider || (process.env.AI_PROVIDER as AiProvider) || 'gemini';
-    if (selectedProvider === 'openrouter') {
-      return aiGenerateOpenRouter({ provider, systemInstruction, json, model, parts });
+  // OpenRouter with automatic model fallback. When `freeOnly` is true it only tries
+  // free open-source models (used as fallback when Gemini exhausts its tokens).
+  async function aiGenerateOpenRouter({ systemInstruction, json, model, freeOnly, parts }: AiGenerateInput): Promise<string> {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error('Falta OPENROUTER_API_KEY en el entorno para usar OpenRouter');
     }
-    return aiGenerateGemini({ provider, systemInstruction, json, model, parts });
+
+    const customFreeModel = process.env.OPENROUTER_FALLBACK_MODEL;
+    const candidates: string[] = freeOnly
+      ? [customFreeModel, ...FREE_OPENSOURCE_MODELS].filter((m): m is string => !!m)
+      : [
+          ...new Set(
+            [model, process.env.OPENROUTER_MODEL, '~openai/gpt-latest', customFreeModel, ...FREE_OPENSOURCE_MODELS].filter(
+              (m): m is string => !!m
+            )
+          ),
+        ];
+
+    let lastError: unknown = null;
+    for (const candidateModel of candidates) {
+      try {
+        return await callOpenRouter(candidateModel, { systemInstruction, json, parts, apiKey });
+      } catch (err) {
+        lastError = err;
+        console.warn(`[AI] OpenRouter "${candidateModel}" falló, probando el siguiente:`, err);
+      }
+    }
+
+    throw lastError instanceof Error ? lastError : new Error('No se pudo generar contenido con OpenRouter');
+  }
+
+  async function aiGenerate({ provider, systemInstruction, json, model, freeOnly, parts }: AiGenerateInput): Promise<string> {
+    const selectedProvider: AiProvider = provider || (process.env.AI_PROVIDER as AiProvider) || 'gemini';
+
+    // Explicit OpenRouter selection always goes to OpenRouter
+    if (selectedProvider === 'openrouter') {
+      return aiGenerateOpenRouter({ provider, systemInstruction, json, model, freeOnly, parts });
+    }
+
+    // Default flow: Gemini first. If it runs out of tokens / fails, fall back to
+    // free open-source models on OpenRouter.
+    try {
+      return await aiGenerateGemini({ provider, systemInstruction, json, parts });
+    } catch (err) {
+      console.warn('[AI] Gemini agotó tokens o falló, usando modelos gratuitos de OpenRouter:', err);
+      return aiGenerateOpenRouter({ provider, systemInstruction, json, model, freeOnly: true, parts });
+    }
   }
 
   // --- GOOGLE DRIVE INTEGRATION HELPERS ---
